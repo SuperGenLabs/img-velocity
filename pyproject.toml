@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "img-velocity"
+version = "0.1.0"
+description = "Generate responsive WebP image sets with intelligent compression for faster web performance."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Johnny Wachter", email = "johnny@supergenlabs.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["image", "conversion", "webp", "optimization", "batch", "processing"]
+requires-python = ">=3.8"
+dependencies = [
+    "pillow>=8.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pyinstaller>=5.0",
+    "build>=0.7.0",
+    "twine>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/SuperGenLabs/img-velocity"
+Repository = "https://github.com/SuperGenLabs/img-velocity"
+Issues = "https://github.com/SuperGenLabs/img-velocity/issues"
+
+[project.scripts]
+img-velocity = "img_velocity.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["img_velocity*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    ".benchmarks",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "PIE",  # flake8-pie
+    "SIM",  # flake8-simplify
+    "RET",  # flake8-return
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "UP007", # Use X | Y for type annotations (Python 3.8 compatibility)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG", "PTH"]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+known-first-party = ["img_velocity"]
+force-single-line = false

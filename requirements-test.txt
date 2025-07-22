@@ -1,0 +1,40 @@
+# Testing dependencies for img-velocity
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-xdist>=3.0.0  # Parallel test execution
+
+# Coverage reporting
+coverage>=7.0.0
+
+# Code quality and linting
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+bandit>=1.7.0
+
+# Security and dependency scanning
+safety>=2.3.0
+
+# Performance testing
+pytest-benchmark>=4.0.0
+
+# Property-based testing (optional, for advanced tests)
+hypothesis>=6.70.0
+
+# PIL/Pillow for image manipulation in tests
+Pillow>=9.0.0
+
+# Additional test utilities
+parameterized>=0.8.1
+factory-boy>=3.2.1  # For creating test fixtures
+freezegun>=1.2.2    # For time-based testing
+
+# Documentation testing
+pytest-doctestplus>=0.12.0
+
+# HTML test reports
+pytest-html>=3.1.0
