@@ -26,6 +26,10 @@ def sanitize_filename(filename: str) -> str:
     """
     from .security import SecurityValidator
 
+    # Handle empty filename case
+    if not filename or filename.strip() == "":
+        return "unnamed"
+
     # First apply security sanitization
     filename = SecurityValidator.sanitize_filename(filename, allow_dots=False)
 

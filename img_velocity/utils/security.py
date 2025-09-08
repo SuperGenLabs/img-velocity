@@ -40,7 +40,7 @@ class SecurityValidator:
 
         # Resolve to absolute path (follows symlinks and removes ..)
         try:
-            resolved_path = path.resolve()
+            resolved_path = path.resolve(strict=False)
         except (OSError, RuntimeError) as e:
             raise ValueError(f"Invalid path: {path}") from e
 
@@ -50,7 +50,7 @@ class SecurityValidator:
 
         # If base_dir specified, ensure path is within it
         if base_dir:
-            base_dir = base_dir.resolve()
+            base_dir = base_dir.resolve(strict=False)
             try:
                 # This will raise ValueError if path is not relative to base_dir
                 resolved_path.relative_to(base_dir)

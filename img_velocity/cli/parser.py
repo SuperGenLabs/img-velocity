@@ -83,6 +83,8 @@ Features:
         parser.add_argument(
             "--benchmark",
             metavar="INPUT_DIR",
+            nargs="?",
+            const=True,
             help="Benchmark different worker counts using images from INPUT_DIR",
         )
         parser.add_argument(
