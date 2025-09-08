@@ -98,3 +98,6 @@ profile_output/
 # Environment variables
 .env.local
 .env.*.local
+
+.ruff_cache/
+.claude
