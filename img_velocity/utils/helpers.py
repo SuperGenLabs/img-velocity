@@ -2,7 +2,7 @@
 
 import math
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 
 def format_time(seconds: float) -> str:
