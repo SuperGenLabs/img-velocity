@@ -1,6 +1,5 @@
 """Image processing with smart compression and resizing."""
 
-import logging
 from pathlib import Path
 
 from PIL import Image, ImageFilter
@@ -66,7 +65,7 @@ class ImageProcessor:
         try:
             # Validate output path stays within output_dir
             output_path = SecurityValidator.validate_path(output_path, output_dir)
-            
+
             # Ensure output directory exists
             output_path.parent.mkdir(parents=True, exist_ok=True)
 

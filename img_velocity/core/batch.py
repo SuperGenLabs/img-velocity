@@ -1,6 +1,5 @@
 """Batch processing orchestration."""
 
-import logging
 import multiprocessing
 import shutil
 import tempfile
@@ -107,11 +106,11 @@ class BatchProcessor:
         except ValueError as e:
             logger.error(f"Invalid path: {e}")
             return
-            
+
         if not input_dir.exists() or not input_dir.is_dir():
             logger.error(f"Invalid input directory: {input_dir}")
             return
-            
+
         # Validate worker count
         try:
             max_workers = SecurityValidator.validate_worker_count(max_workers)
@@ -285,7 +284,7 @@ class BatchProcessor:
         except ValueError as e:
             logger.error(f"Invalid input directory: {e}")
             return
-            
+
         logger.info("BENCHMARKING OPTIMAL WORKER COUNT")
         logger.info("=" * 50)
 
@@ -327,10 +326,10 @@ class BatchProcessor:
     ) -> list[dict[str, any]]:
         """Run benchmark tests with different worker counts."""
         results = []
-        
+
         # Create a base temp directory for all benchmark runs
         temp_base = Path(tempfile.mkdtemp(prefix="img_velocity_benchmark_"))
-        
+
         try:
             for workers in test_workers:
                 logger.info(f"Testing {workers} workers...")
@@ -381,7 +380,7 @@ class BatchProcessor:
             # Clean up the entire temp base directory
             if temp_base.exists():
                 shutil.rmtree(temp_base, ignore_errors=True)
-            
+
         return results
 
     def _print_benchmark_results(

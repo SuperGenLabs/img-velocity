@@ -1,12 +1,10 @@
 """Command line interface parsing."""
 
 import argparse
-import logging
 import sys
 
 from ..utils.helpers import parse_override_params
 from ..utils.logging import get_logger
-from ..utils.security import SecurityValidator
 
 logger = get_logger(__name__.split('.')[-1])
 
@@ -73,12 +71,12 @@ Features:
         )
 
         parser.add_argument(
-            "input_dir", 
+            "input_dir",
             nargs="?",
             help="Input directory containing images"
         )
         parser.add_argument(
-            "output_dir", 
+            "output_dir",
             nargs="?",
             help="Output directory for WebP variants"
         )

@@ -24,10 +24,10 @@ def sanitize_filename(filename: str) -> str:
     Replace spaces and underscores with hyphens, convert to lowercase.
     """
     from .security import SecurityValidator
-    
+
     # First apply security sanitization
     filename = SecurityValidator.sanitize_filename(filename, allow_dots=False)
-    
+
     # Then apply stylistic sanitization
     sanitized = filename.lower().replace(" ", "-").replace("_", "-")
     while "--" in sanitized:
@@ -38,7 +38,7 @@ def sanitize_filename(filename: str) -> str:
 def parse_override_params(override_args: list[str]) -> dict[str, any]:
     """Parse override parameters from command line arguments."""
     from .security import SecurityValidator
-    
+
     overrides = {}
 
     # If no arguments provided with --override, it means accept all images
@@ -59,7 +59,7 @@ def parse_override_params(override_args: list[str]) -> dict[str, any]:
                         w, h = SecurityValidator.validate_resolution(w, h)
                         overrides["aspect_ratio"] = (w, h)
                     except ValueError as e:
-                        raise ValueError(f"Invalid aspect ratio: {e}")
+                        raise ValueError(f"Invalid aspect ratio: {e}") from e
                 else:
                     raise ValueError(
                         f"Invalid aspect ratio format: {value}. Use format like '16:9'"
@@ -77,7 +77,7 @@ def parse_override_params(override_args: list[str]) -> dict[str, any]:
                         w, h = SecurityValidator.validate_resolution(w, h)
                         overrides["resolution"] = (w, h)
                     except ValueError as e:
-                        raise ValueError(f"Invalid resolution: {e}")
+                        raise ValueError(f"Invalid resolution: {e}") from e
                 else:
                     raise ValueError(
                         f"Invalid resolution format: {clean_value}. Use format like '1920x1080'"

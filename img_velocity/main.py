@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Main entry point for img-velocity."""
 
-import logging
 import multiprocessing
 import sys
 from pathlib import Path
@@ -19,11 +18,11 @@ def main():
     # Parse command line arguments
     cli_parser = CLIParser()
     args = cli_parser.parse_args()
-    
+
     # Set up logging with level from CLI args
     log_level = getattr(args, 'log_level', 'INFO')
     logger = setup_logging(level=log_level)
-    
+
     # Create batch processor
     batch_processor = BatchProcessor()
 
@@ -40,7 +39,7 @@ def main():
             logger.info("Usage: img-velocity input_dir output_dir [options]")
             logger.info("   or: img-velocity --benchmark input_dir")
             sys.exit(1)
-        
+
         batch_processor.process_images(
             Path(args.input_dir),
             Path(args.output_dir),

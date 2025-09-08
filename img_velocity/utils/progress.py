@@ -8,7 +8,7 @@ from .helpers import format_time
 
 class ProgressTracker:
     """Handles progress display and time estimation."""
-    
+
     def __init__(self):
         self.active = False
         self.last_line = ""
@@ -61,13 +61,13 @@ class ProgressTracker:
         self.last_line = progress_line
         sys.stdout.write(f"\r{progress_line}")
         sys.stdout.flush()
-        
+
         # Mark as inactive when complete
         if current >= total:
             self.active = False
             sys.stdout.write("\n")
             sys.stdout.flush()
-    
+
     def redraw(self) -> None:
         """Redraw the last progress line (used after logging output)."""
         if self.active and self.last_line:
