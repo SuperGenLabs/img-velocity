@@ -1,7 +1,6 @@
 """Image validation and requirements checking."""
 
 from pathlib import Path
-from typing import Any, Optional
 
 from PIL import Image
 
@@ -14,7 +13,7 @@ class ImageValidator:
     def __init__(self, config: Configuration):
         self.config = config
 
-    def get_image_info(self, image_path: Path) -> Optional[dict[str, Any]]:
+    def get_image_info(self, image_path: Path) -> dict[str, any] | None:
         """Get image information if it's a supported format."""
         try:
             with Image.open(image_path) as img:
@@ -32,7 +31,7 @@ class ImageValidator:
             pass
         return None
 
-    def meets_requirements(self, info: dict[str, Any]) -> bool:
+    def meets_requirements(self, info: dict[str, any]) -> bool:
         """Check if image meets minimum size requirements."""
         aspect_ratio = info["aspect_ratio"]
         if aspect_ratio not in self.config.MIN_REQUIREMENTS:
@@ -42,7 +41,7 @@ class ImageValidator:
         return info["width"] >= min_width and info["height"] >= min_height
 
     def meets_requirements_with_override(
-        self, info: dict[str, Any], overrides: Optional[dict[str, Any]] = None
+        self, info: dict[str, any], overrides: dict[str, any] | None = None
     ) -> bool:
         """Check if image meets requirements, considering overrides."""
         if not overrides:

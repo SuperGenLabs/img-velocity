@@ -7,7 +7,6 @@ import tempfile
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Optional
 
 from ..utils.filesystem import FileSystemUtils
 from ..utils.logging import get_logger
@@ -19,11 +18,11 @@ logger = get_logger(__name__.split('.')[-1])
 
 
 def process_image_wrapper(
-    image_info: dict[str, Any],
+    image_info: dict[str, any],
     output_dir: Path,
     thumbnails: bool = False,
-    overrides: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
+    overrides: dict[str, any] | None = None,
+) -> dict[str, any]:
     """Wrapper function for multiprocessing."""
     # Import here to avoid circular import
     from .processor import ImageProcessor
@@ -54,8 +53,8 @@ class BatchProcessor:
         return self._processor
 
     def scan_images(
-        self, input_dir: Path, overrides: Optional[dict[str, Any]] = None
-    ) -> tuple[list[Path], list[dict[str, Any]]]:
+        self, input_dir: Path, overrides: dict[str, any] | None = None
+    ) -> tuple[list[Path], list[dict[str, any]]]:
         """Scan directory for valid images that meet requirements."""
         logger.info("Scanning for images...")
 
@@ -74,7 +73,7 @@ class BatchProcessor:
         return all_image_files, valid_image_infos
 
     def determine_worker_count(
-        self, max_workers: Optional[int], image_count: int
+        self, max_workers: int | None, image_count: int
     ) -> int:
         """Determine optimal number of workers."""
         if max_workers is None:
@@ -90,8 +89,8 @@ class BatchProcessor:
         input_dir: Path,
         output_dir: Path,
         thumbnails: bool = False,
-        max_workers: Optional[int] = None,
-        overrides: Optional[dict[str, Any]] = None,
+        max_workers: int | None = None,
+        overrides: dict[str, any] | None = None,
     ) -> None:
         """Process all images in input directory."""
         if not input_dir.exists() or not input_dir.is_dir():
@@ -138,7 +137,7 @@ class BatchProcessor:
         total_files: int,
         valid_files: int,
         skipped_files: int,
-        overrides: Optional[dict[str, Any]],
+        overrides: dict[str, any] | None,
     ) -> None:
         """Print summary of scanned files."""
         logger.info(f"Found {total_files} image files:")
@@ -161,12 +160,12 @@ class BatchProcessor:
 
     def _process_with_multiprocessing(
         self,
-        valid_image_infos: list[dict[str, Any]],
+        valid_image_infos: list[dict[str, any]],
         output_dir: Path,
         thumbnails: bool,
         max_workers: int,
-        overrides: Optional[dict[str, Any]],
-    ) -> list[dict[str, Any]]:
+        overrides: dict[str, any] | None,
+    ) -> list[dict[str, any]]:
         """Process images using multiprocessing."""
         results = []
         processed_count = 0
@@ -218,7 +217,7 @@ class BatchProcessor:
 
     def _finalize_processing(
         self,
-        results: list[dict[str, Any]],
+        results: list[dict[str, any]],
         output_dir: Path,
         total_files: int,
         valid_files: int,
@@ -255,7 +254,7 @@ class BatchProcessor:
         self,
         input_dir: Path,
         thumbnails: bool = False,
-        overrides: Optional[dict[str, Any]] = None,
+        overrides: dict[str, any] | None = None,
     ) -> None:
         """Benchmark different worker counts to find optimal performance."""
         logger.info("BENCHMARKING OPTIMAL WORKER COUNT")
@@ -293,10 +292,10 @@ class BatchProcessor:
     def _run_benchmark_tests(
         self,
         test_workers: list[int],
-        valid_image_infos: list[dict[str, Any]],
+        valid_image_infos: list[dict[str, any]],
         thumbnails: bool,
-        overrides: Optional[dict[str, Any]],
-    ) -> list[dict[str, Any]]:
+        overrides: dict[str, any] | None,
+    ) -> list[dict[str, any]]:
         """Run benchmark tests with different worker counts."""
         results = []
         
@@ -357,7 +356,7 @@ class BatchProcessor:
         return results
 
     def _print_benchmark_results(
-        self, results: list[dict[str, Any]], cpu_count: int
+        self, results: list[dict[str, any]], cpu_count: int
     ) -> None:
         """Print benchmark results and recommendations."""
         best_result = max(results, key=lambda x: x["images_per_second"])

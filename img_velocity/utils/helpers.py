@@ -2,7 +2,6 @@
 
 import math
 import re
-from typing import Any
 
 
 def format_time(seconds: float) -> str:
@@ -27,7 +26,7 @@ def sanitize_filename(filename: str) -> str:
     return sanitized.strip("-")
 
 
-def parse_override_params(override_args: list[str]) -> dict[str, Any]:
+def parse_override_params(override_args: list[str]) -> dict[str, any]:
     """Parse override parameters from command line arguments."""
     overrides = {}
 

@@ -2,14 +2,13 @@
 
 import json
 from pathlib import Path
-from typing import Any
 
 
 class FileSystemUtils:
     """Handles file operations, directory creation, and manifest generation."""
 
     def generate_manifest(
-        self, results: list[dict[str, Any]], output_dir: Path
+        self, results: list[dict[str, any]], output_dir: Path
     ) -> None:
         """Generate manifest.json for processed images."""
         manifest = {"version": "1.0", "images": {}}

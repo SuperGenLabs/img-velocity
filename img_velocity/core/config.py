@@ -1,7 +1,6 @@
 """Configuration management for image processing."""
 
 from math import gcd
-from typing import Any, Optional
 
 
 class Configuration:
@@ -183,7 +182,7 @@ class Configuration:
 
     @classmethod
     def get_output_sizes_with_override(
-        cls, aspect_ratio: tuple[int, int], overrides: Optional[dict[str, Any]] = None
+        cls, aspect_ratio: tuple[int, int], overrides: dict[str, any] | None = None
     ) -> dict[str, list[tuple[int, int]]]:
         """Get output sizes for aspect ratio, considering overrides."""
         if not overrides:

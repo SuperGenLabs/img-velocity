@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Optional
 
 from PIL import Image, ImageFilter
 
@@ -52,7 +51,7 @@ class ImageProcessor:
 
     def process_single_size(
         self, args: tuple[Path, Path, tuple[int, int], tuple[int, int], bool, Path]
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, any] | None:
         """Process a single image size variant."""
         (
             source_path,
@@ -126,11 +125,11 @@ class ImageProcessor:
 
     def process_image(
         self,
-        image_info: dict[str, Any],
+        image_info: dict[str, any],
         output_dir: Path,
         thumbnails: bool = False,
-        overrides: Optional[dict[str, Any]] = None,
-    ) -> dict[str, Any]:
+        overrides: dict[str, any] | None = None,
+    ) -> dict[str, any]:
         """Process a single image into all required variants."""
         source_path = image_info["path"]
         aspect_ratio = image_info["aspect_ratio"]
