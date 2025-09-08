@@ -12,7 +12,7 @@ class FileSystemUtils:
         self, results: List[Dict[str, Any]], output_dir: Path
     ) -> None:
         """Generate manifest.json for processed images."""
-        manifest = {"version": "1.0", "images": {}}
+        manifest: Dict[str, Any] = {"version": "1.0", "images": {}}
 
         for result in results:
             if result["status"] == "success":

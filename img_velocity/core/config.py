@@ -175,16 +175,14 @@ class Configuration:
         return (width // divisor, height // divisor)
 
     @classmethod
-    def get_output_sizes(
-        cls, aspect_ratio: Tuple[int, int]
-    ) -> Dict[str, List[Tuple[int, int]]]:
+    def get_output_sizes(cls, aspect_ratio: Tuple[int, int]) -> Dict[str, Any]:
         """Get output sizes for aspect ratio."""
         return cls.OUTPUT_CONFIGS.get(aspect_ratio, {})
 
     @classmethod
     def get_output_sizes_with_override(
         cls, aspect_ratio: Tuple[int, int], overrides: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, List[Tuple[int, int]]]:
+    ) -> Dict[str, Any]:
         """Get output sizes for aspect ratio, considering overrides."""
         if not overrides:
             return cls.get_output_sizes(aspect_ratio)
@@ -199,7 +197,11 @@ class Configuration:
         base_config = cls.get_output_sizes(target_aspect_ratio)
         if not base_config:
             folder_name = f"custom-{target_aspect_ratio[0]}-{target_aspect_ratio[1]}"
-            base_config = {"folder": folder_name, "sizes": [], "thumbnail_sizes": []}
+            base_config = {
+                "folder": folder_name,
+                "sizes": [],
+                "thumbnail_sizes": [],
+            }
 
         # Handle resolution override
         if "resolution" in overrides:

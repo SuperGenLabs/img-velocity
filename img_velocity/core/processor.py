@@ -99,7 +99,7 @@ class ImageProcessor:
                 )
 
                 # Save as WebP
-                save_kwargs = {
+                save_kwargs: Dict[str, Any] = {
                     "format": "WebP",
                     "quality": quality,
                     "method": 6,  # Maximum compression effort
@@ -155,7 +155,8 @@ class ImageProcessor:
         base_filename = sanitize_filename(source_path.stem)
 
         # Create output directory structure with validation
-        output_subdir = output_dir / output_config["folder"] / base_filename
+        folder_name = output_config["folder"]
+        output_subdir = output_dir / folder_name / base_filename
         try:
             output_subdir = SecurityValidator.validate_path(output_subdir, output_dir)
         except ValueError as e:

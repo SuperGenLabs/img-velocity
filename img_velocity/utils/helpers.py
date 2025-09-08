@@ -40,7 +40,7 @@ def parse_override_params(override_args: List[str]) -> Dict[str, Any]:
     """Parse override parameters from command line arguments."""
     from .security import SecurityValidator
 
-    overrides = {}
+    overrides: Dict[str, Any] = {}
 
     # If no arguments provided with --override, it means accept all images
     if not override_args:
