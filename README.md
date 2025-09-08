@@ -25,20 +25,20 @@ hero-image-1920x1080.webp (95KB)  # Desktop
 hero-image-3840x2160.webp (180KB) # 4K displays
 ```
 
-## ✨ What It Does
+## What It Does
 
-- **🚀 Parallel Processing**: Uses all your CPU cores to process images blazingly fast
-- **🎯 Smart Compression**: Automatically adjusts WebP quality based on image size
-- **📱 Responsive Ready**: Generates the exact sizes you need for responsive design
-- **🔧 Override Everything**: Don't like the defaults? Override aspect ratios and resolutions
-- **📊 Progress Tracking**: See exactly how fast your images are processing
-- **🧪 Performance Tuning**: Built-in benchmarking finds the optimal worker count
-- **📝 Web Integration**: Generates a manifest.json for easy web framework integration
-- **🔒 Security First**: Input validation, path sanitization, and injection protection
-- **📚 Library & CLI**: Use as a command-line tool or import as a Python library
-- **📊 Proper Logging**: Configurable logging levels instead of print statements
+- **Parallel Processing**: Uses all your CPU cores to process images blazingly fast
+- **Smart Compression**: Automatically adjusts WebP quality based on image size
+- **Responsive Ready**: Generates the exact sizes you need for responsive design
+- **Override Everything**: Don't like the defaults? Override aspect ratios and resolutions
+- **Progress Tracking**: See exactly how fast your images are processing
+- **Performance Tuning**: Built-in benchmarking finds the optimal worker count
+- **Web Integration**: Generates a manifest.json for easy web framework integration
+- **Security First**: Input validation, path sanitization, and injection protection
+- **Library & CLI**: Use as a command-line tool or import as a Python library
+- **Proper Logging**: Configurable logging levels instead of print statements
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Install
 
@@ -100,14 +100,14 @@ processor = ImageProcessor(config)
 
 That's it. Point it at a folder of images, and it'll organize everything by aspect ratio and generate multiple WebP sizes for each.
 
-## 📖 How I Use It
+## How to Use It
 
-Here's my typical workflow when building web apps:
+Here's how to integrate img-velocity into modern web applications:
 
 ### 1. Process Your Images
 
 ```bash
-# I usually process everything with thumbnails
+# Process all images with thumbnails for lazy loading
 img-velocity assets/raw-images/ public/images/ --thumbnails
 ```
 
@@ -130,52 +130,201 @@ public/images/
 └── manifest.json
 ```
 
-### 3. Implement Responsive Images
+### 3. Implement in Your Application
 
-Here's how I use the generated images in my web apps:
+#### Vue.js 3 + Tailwind CSS 4 Component
 
-#### React/Next.js Example
+```vue
+<template>
+  <picture class="block">
+    <!-- Mobile -->
+    <source 
+      :srcset="getVariant(768)" 
+      media="(max-width: 768px)"
+    />
+    <!-- Tablet -->
+    <source 
+      :srcset="getVariant(1200)" 
+      media="(max-width: 1200px)"
+    />
+    <!-- Desktop fallback -->
+    <img 
+      :src="fallbackSrc"
+      :alt="alt"
+      loading="lazy"
+      class="size-full object-cover"
+    />
+  </picture>
+</template>
 
-```jsx
-import manifest from '/public/images/manifest.json';
+<script setup lang="ts">
+import { computed } from 'vue'
+import manifest from '@/assets/images/manifest.json'
 
-function ResponsiveImage({ imageName, alt, className }) {
-  const imageData = manifest.images[imageName];
-  const variants = imageData.variants.filter(v => v.type === 'standard');
-  
-  // Get the largest variant as fallback
-  const fallback = variants.reduce((largest, current) => 
-    current.width > largest.width ? current : largest
-  );
-
-  return (
-    <picture className={className}>
-      {/* Mobile */}
-      <source 
-        media="(max-width: 768px)" 
-        srcSet={`/images/${variants.find(v => v.width <= 768)?.path}`} 
-      />
-      {/* Tablet */}
-      <source 
-        media="(max-width: 1200px)" 
-        srcSet={`/images/${variants.find(v => v.width <= 1200)?.path}`} 
-      />
-      {/* Desktop */}
-      <img 
-        src={`/images/${fallback.path}`} 
-        alt={alt}
-        loading="lazy"
-      />
-    </picture>
-  );
+interface Props {
+  imageName: string
+  alt: string
 }
 
-// Usage
+const props = defineProps<Props>()
+
+const imageData = computed(() => manifest.images[props.imageName])
+
+const variants = computed(() => 
+  imageData.value?.variants.filter(v => v.type === 'standard') || []
+)
+
+const fallbackSrc = computed(() => {
+  const largest = variants.value.reduce((max, current) => 
+    current.width > max.width ? current : max
+  , variants.value[0])
+  return `/images/${largest?.path}`
+})
+
+const getVariant = (maxWidth: number) => {
+  const variant = variants.value
+    .filter(v => v.width <= maxWidth)
+    .sort((a, b) => b.width - a.width)[0]
+  return variant ? `/images/${variant.path}` : fallbackSrc.value
+}
+</script>
+```
+
+Usage in your Vue template:
+```vue
 <ResponsiveImage 
-  imageName="hero-image.jpg" 
-  alt="Beautiful hero image" 
-  className="w-full h-64 object-cover"
+  image-name="hero-image.jpg" 
+  alt="Hero image"
 />
+```
+
+#### FastAPI Backend Integration
+
+Process images on-demand or in batch using FastAPI:
+
+```python
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks
+from fastapi.responses import JSONResponse
+from pathlib import Path
+import img_velocity
+import aiofiles
+import uuid
+
+app = FastAPI()
+
+UPLOAD_DIR = Path("uploads")
+OUTPUT_DIR = Path("static/images")
+
+@app.post("/api/images/process")
+async def process_image(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...)
+):
+    """Process single image upload."""
+    # Save uploaded file
+    file_id = str(uuid.uuid4())
+    input_path = UPLOAD_DIR / f"{file_id}_{file.filename}"
+    
+    async with aiofiles.open(input_path, 'wb') as f:
+        content = await file.read()
+        await f.write(content)
+    
+    # Process image immediately
+    result = img_velocity.process_single_image(
+        input_path,
+        OUTPUT_DIR,
+        thumbnails=True
+    )
+    
+    # Clean up original after processing
+    background_tasks.add_task(input_path.unlink)
+    
+    return JSONResponse(content=result)
+
+@app.post("/api/images/batch")
+async def process_batch(
+    background_tasks: BackgroundTasks,
+    files: list[UploadFile] = File(...)
+):
+    """Process multiple images in batch."""
+    batch_id = str(uuid.uuid4())
+    batch_dir = UPLOAD_DIR / batch_id
+    batch_dir.mkdir(exist_ok=True)
+    
+    # Save all uploaded files
+    for file in files:
+        file_path = batch_dir / file.filename
+        async with aiofiles.open(file_path, 'wb') as f:
+            content = await file.read()
+            await f.write(content)
+    
+    # Process in background
+    background_tasks.add_task(
+        process_batch_images,
+        batch_dir,
+        OUTPUT_DIR / batch_id
+    )
+    
+    return {"batch_id": batch_id, "status": "processing"}
+
+def process_batch_images(input_dir: Path, output_dir: Path):
+    """Background task to process images."""
+    results = img_velocity.process_images(
+        input_dir,
+        output_dir,
+        thumbnails=True,
+        workers=4
+    )
+    # Could save results to database or cache here
+    # Clean up input directory after processing
+    import shutil
+    shutil.rmtree(input_dir)
+
+@app.get("/api/images/{image_id}/variants")
+async def get_image_variants(image_id: str):
+    """Get all variants for a processed image."""
+    manifest_path = OUTPUT_DIR / "manifest.json"
+    if not manifest_path.exists():
+        return {"error": "No processed images found"}
+    
+    import json
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+    
+    # Find image by ID or name
+    for image_name, data in manifest["images"].items():
+        if image_id in image_name:
+            return data
+    
+    return {"error": "Image not found"}
+```
+
+Then in your Vue.js app, fetch and display images:
+
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+const imageVariants = ref(null)
+
+async function uploadAndProcess(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  
+  const response = await fetch('/api/images/process', {
+    method: 'POST',
+    body: formData
+  })
+  
+  const result = await response.json()
+  imageVariants.value = result.variants
+}
+
+// Use processed images
+const getImageUrl = (variant) => {
+  return `/static/images/${variant.path}`
+}
+</script>
 ```
 
 #### Plain HTML Example
@@ -212,7 +361,7 @@ function ResponsiveImage({ imageName, alt, className }) {
 }
 ```
 
-## 🎛️ Advanced Usage
+## Advanced Usage
 
 ### Override Default Requirements
 
@@ -272,7 +421,7 @@ img-velocity input/ output/ --log-level DEBUG
 
 **Input formats**: JPEG, PNG, WebP
 
-## 🏗️ Understanding the Output
+## Understanding the Output
 
 ### Generated Directory Structure
 
@@ -326,7 +475,7 @@ The `manifest.json` makes it easy to integrate with any web framework:
 }
 ```
 
-## ⚙️ Customizing the Configuration
+## Customizing the Configuration
 
 Want different output sizes or aspect ratios? You can modify the configuration:
 
@@ -395,29 +544,49 @@ OUTPUT_CONFIGS = {
 }
 ```
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 ```
 img-velocity/
-├── img_velocity/
+├── img_velocity/                # Main package directory
 │   ├── __init__.py              # Package exports and library API
 │   ├── main.py                  # CLI entry point
-│   ├── cli/
-│   │   └── parser.py            # Command line argument parsing
+│   ├── cli/                     # Command-line interface
+│   │   ├── __init__.py          # CLI module exports
+│   │   └── parser.py            # Argument parsing and validation
 │   ├── core/                    # Core processing logic
-│   │   ├── config.py            # Aspect ratios and output sizes
-│   │   ├── validator.py         # Image validation and requirements
+│   │   ├── __init__.py          # Core module exports
+│   │   ├── batch.py             # Parallel batch processing orchestration
+│   │   ├── config.py            # Aspect ratios, sizes, and quality settings
 │   │   ├── processor.py         # Image processing and WebP conversion
-│   │   └── batch.py             # Parallel processing orchestration
-│   └── utils/                   # Utilities
-│       ├── progress.py          # Progress tracking
-│       ├── filesystem.py        # Manifest generation
-│       ├── helpers.py           # General utilities
-│       ├── logging.py           # Logging configuration
-│       └── security.py          # Input validation and sanitization
-├── tests/                       # Comprehensive test suite
-├── requirements.txt            # Production dependencies (just Pillow)
-└── pyproject.toml              # Project configuration
+│   │   └── validator.py         # Image validation and requirements checking
+│   └── utils/                   # Utility modules
+│       ├── __init__.py          # Utils module exports
+│       ├── filesystem.py        # File operations and manifest generation
+│       ├── helpers.py           # General utility functions
+│       ├── logging.py           # Logging configuration and handlers
+│       ├── progress.py          # Progress bar and ETA tracking
+│       └── security.py          # Input validation and path sanitization
+├── tests/                       # Test suite
+│   ├── __init__.py
+│   ├── conftest.py             # Pytest configuration and fixtures
+│   ├── test_batch.py           # Batch processor tests
+│   ├── test_cli.py             # CLI tests
+│   ├── test_config.py          # Configuration tests
+│   ├── test_integration.py     # Integration tests
+│   ├── test_processor.py       # Image processor tests
+│   ├── test_utils.py           # Utility function tests
+│   └── test_validator.py       # Validator tests
+├── .github/
+│   └── workflows/
+│       ├── build.yml           # Build and release workflow
+│       └── ci.yml              # Continuous integration workflow
+├── LICENSE                     # MIT license
+├── Makefile                    # Development convenience commands
+├── README.md                   # This file
+├── pyproject.toml              # Package configuration and metadata
+├── pytest.ini                  # Pytest configuration
+└── requirements.txt            # Production dependency (Pillow)
 ```
 
 ### Key Components
@@ -430,7 +599,7 @@ img-velocity/
 - **`SecurityValidator`**: Input validation and path sanitization for security
 - **Logging System**: Structured logging with configurable levels
 
-## 🤝 Contributing
+## Contributing
 
 I'd love your help making this tool even better! Here's how to get started:
 
@@ -447,7 +616,12 @@ source venv/bin/activate  # Linux/macOS
 
 # Install in development mode
 pip install -e .
+
+# Optional: Install test dependencies
+pip install -e .[test]
 ```
+
+**Note**: There's a `Makefile` included for development convenience (e.g., `make format`, `make test`), but it's completely optional. The package works perfectly fine with standard Python tools.
 
 ### Code Quality Standards
 
@@ -455,13 +629,13 @@ I'm pretty particular about code quality. Here's what I expect:
 
 ```bash
 # Format your code
-make format  # or: black img_velocity/ tests/ && isort img_velocity/ tests/
+make format  # or: black img_velocity/ && ruff format img_velocity/
 
-# Lint everything
-make lint    # or: flake8 img_velocity/ tests/ && mypy img_velocity/
+# Lint everything  
+make lint    # or: ruff check img_velocity/ && mypy img_velocity/
 
 # Run security checks
-make security  # or: bandit -r img_velocity/
+make security  # or: bandit -r img_velocity/ -ll
 
 # Before you commit
 make pre-commit  # Runs format, lint, and fast tests
@@ -473,15 +647,10 @@ make pre-commit  # Runs format, lint, and fast tests
 
 ```bash
 # Run all tests with coverage
-make test  # or: pytest --cov=img_velocity --cov-fail-under=90
-
-# Run specific test types
-make test-unit         # Unit tests only
-make test-integration  # Integration tests
-make test-performance  # Performance benchmarks
+make test  # or: pytest --cov=img_velocity --cov-fail-under=80
 
 # Fast tests during development
-make test-fast  # Skip slow tests
+make test-fast  # or: pytest -x -q --tb=short
 ```
 
 ### Test Structure
@@ -517,15 +686,7 @@ Docs: Update configuration examples
 Perf: Optimize image processing pipeline
 ```
 
-### Areas Where I'd Love Help
-
-- **Format Support**: AVIF, JPEG XL support
-- **Performance**: Further optimization of the processing pipeline
-- **Platform Support**: Better Windows compatibility testing
-- **Web Integration**: Framework-specific helper libraries
-- **Documentation**: More real-world usage examples
-
-## 🔒 Security Features
+## Security Features
 
 img-velocity includes comprehensive security measures:
 
@@ -535,7 +696,7 @@ img-velocity includes comprehensive security measures:
 - **No Command Injection**: No shell commands or dynamic code execution
 - **Resource Limits**: Worker count limits prevent system overload
 
-## 🎯 Performance Tips
+## Performance Tips
 
 ### Optimal Worker Counts
 - **CPU-bound systems**: Start with `--workers 4-8`
@@ -545,7 +706,7 @@ img-velocity includes comprehensive security measures:
 ### Processing Large Batches
 ```bash
 # For 100+ images, use benchmarking to find optimal settings
-img-velocity large-batch/ output/ --benchmark --thumbnails
+img-velocity --benchmark large-batch/
 
 # Then use the recommended worker count
 img-velocity large-batch/ output/ --workers 12 --thumbnails
@@ -556,11 +717,11 @@ img-velocity large-batch/ output/ --workers 12 --thumbnails
 - Consider processing in smaller batches if you hit memory limits
 - The tool automatically handles cleanup, but watch your system resources
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with:
 - [Pillow](https://pillow.readthedocs.io/) for rock-solid image processing
@@ -571,4 +732,4 @@ Built with:
 
 **Questions? Issues? Want to chat about web performance?** 
 
-Open an issue or start a discussion. I love talking about making the web faster! 🚀
+Open an issue or start a discussion. I love talking about making the web faster!

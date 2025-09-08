@@ -1,84 +1,68 @@
-# Makefile for img-velocity development
+# Development convenience targets for img-velocity
+# This is NOT required to use the package - just helpful for development
 
-.PHONY: help install install-dev test test-unit test-integration test-performance lint format type-check security clean build docs
+.PHONY: help install install-dev test test-unit test-integration test-performance lint format type-check security clean build
 
 # Default target
 help:
-	@echo "Available targets:"
+	@echo "Development convenience targets:"
+	@echo ""
+	@echo "Installation:"
 	@echo "  install          Install package in development mode"
-	@echo "  install-dev      Install with all development dependencies"
+	@echo "  install-dev      Install with test dependencies"
+	@echo ""
+	@echo "Testing:"
 	@echo "  test             Run all tests with coverage"
-	@echo "  test-unit        Run unit tests only"
-	@echo "  test-integration Run integration tests only"
-	@echo "  test-performance Run performance tests"
-	@echo "  lint             Run all linting tools"
-	@echo "  format           Format code with Black and isort"
-	@echo "  type-check       Run mypy type checking"
+	@echo "  test-fast        Run quick tests only"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  format           Format code with black and ruff"
+	@echo "  lint             Run linting and type checks"
 	@echo "  security         Run security scans"
-	@echo "  clean            Clean build artifacts and cache"
+	@echo ""
+	@echo "Build & Clean:"
 	@echo "  build            Build distribution packages"
-	@echo "  docs             Generate documentation"
+	@echo "  clean            Clean build artifacts and cache"
 
 # Installation targets
 install:
 	pip install -e .
 
 install-dev:
-	pip install -e .
-	pip install -r requirements-test.txt
+	pip install -e .[test]
 
 # Testing targets
 test:
 	pytest --cov=img_velocity --cov-report=term-missing --cov-report=html --cov-fail-under=80
 
-test-unit:
-	pytest -m "unit or not integration" -v
-
-test-integration:
-	pytest -m integration -v
-
-test-performance:
-	pytest -m performance -v --benchmark-only
-
 test-fast:
-	pytest -m "not slow" -x -q
-
-test-parallel:
-	pytest -n auto
+	pytest -x -q --tb=short
 
 # Code quality targets
-lint: flake8 mypy bandit
-
-flake8:
-	flake8 img_velocity/ tests/
-
-mypy:
-	mypy img_velocity/
-
-bandit:
-	bandit -r img_velocity/ -ll
-
 format:
-	black img_velocity/ tests/
-	isort img_velocity/ tests/
+	black img_velocity/
+	ruff format img_velocity/
+
+lint:
+	ruff check img_velocity/
+	mypy img_velocity/ --ignore-missing-imports
 
 format-check:
-	black --check img_velocity/ tests/
-	isort --check-only img_velocity/ tests/
+	black --check img_velocity/
+	ruff check img_velocity/
 
 type-check:
 	mypy img_velocity/
 
 security:
-	bandit -r img_velocity/
-	safety check
+	bandit -r img_velocity/ -ll
 
 # Development workflow targets
 pre-commit: format lint test-fast
-	@echo "✅ Pre-commit checks passed!"
+	@echo "Pre-commit checks passed!"
 
 ci: format-check lint test
-	@echo "✅ CI pipeline passed!"
+	@echo "CI pipeline passed!"
 
 # Build and distribution targets
 clean:
@@ -98,42 +82,10 @@ build: clean
 build-dev: clean
 	python -m build --wheel
 
-# Documentation targets
-docs:
-	@echo "Documentation generation not yet implemented"
-
-# Benchmarking and profiling
-benchmark:
-	python -m img_velocity benchmark tests/fixtures/sample_images/ /tmp/benchmark_output/
-
-profile:
-	python -m cProfile -o profile_output.prof -m img_velocity tests/fixtures/sample_images/ /tmp/profile_output/
-
-# Release targets
-version-patch:
-	bump2version patch
-
-version-minor:
-	bump2version minor
-
-version-major:
-	bump2version major
-
-# Docker targets (if you add Docker support later)
-docker-build:
-	docker build -t img-velocity .
-
-docker-test:
-	docker run --rm img-velocity pytest
-
 # Utility targets
-deps-update:
-	pip list --outdated
-	@echo "Run 'pip install --upgrade <package>' to update specific packages"
-
-deps-tree:
-	pipdeptree
-
-check-deps:
-	safety check
-	pip-audit
+test-install:
+	@echo "Testing package installation..."
+	pip uninstall -y img-velocity 2>/dev/null || true
+	pip install .
+	img-velocity --help
+	@echo "Package installation successful!"
