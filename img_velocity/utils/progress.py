@@ -1,17 +1,23 @@
 """Progress tracking utilities."""
 
 import shutil
+import sys
 
 from .helpers import format_time
 
 
 class ProgressTracker:
     """Handles progress display and time estimation."""
+    
+    def __init__(self):
+        self.active = False
+        self.last_line = ""
 
     def display_progress(
         self, current: int, total: int, elapsed_time: float, bar_width: int = 40
     ) -> None:
         """Display progress bar with time estimation."""
+        self.active = True
         percent = (current / total) * 100
         filled = int(bar_width * current / total)
         bar = "█" * filled + "░" * (bar_width - filled)
@@ -51,4 +57,19 @@ class ProgressTracker:
             # Fallback if terminal size detection fails
             pass
 
-        print(f"\r{progress_line}", end="", flush=True)
+        # Store and display the progress line
+        self.last_line = progress_line
+        sys.stdout.write(f"\r{progress_line}")
+        sys.stdout.flush()
+        
+        # Mark as inactive when complete
+        if current >= total:
+            self.active = False
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+    
+    def redraw(self) -> None:
+        """Redraw the last progress line (used after logging output)."""
+        if self.active and self.last_line:
+            sys.stdout.write(f"\r{self.last_line}")
+            sys.stdout.flush()

@@ -1,5 +1,6 @@
 """Batch processing orchestration."""
 
+import logging
 import multiprocessing
 import shutil
 import tempfile
@@ -9,9 +10,12 @@ from pathlib import Path
 from typing import Any, Optional
 
 from ..utils.filesystem import FileSystemUtils
+from ..utils.logging import get_logger
 from ..utils.progress import ProgressTracker
 from .config import Configuration
 from .validator import ImageValidator
+
+logger = get_logger(__name__.split('.')[-1])
 
 
 def process_image_wrapper(
@@ -53,7 +57,7 @@ class BatchProcessor:
         self, input_dir: Path, overrides: Optional[dict[str, Any]] = None
     ) -> tuple[list[Path], list[dict[str, Any]]]:
         """Scan directory for valid images that meet requirements."""
-        print("Scanning for images...")
+        logger.info("Scanning for images...")
 
         all_image_files = []
         valid_image_infos = []
@@ -91,7 +95,7 @@ class BatchProcessor:
     ) -> None:
         """Process all images in input directory."""
         if not input_dir.exists() or not input_dir.is_dir():
-            print(f"Error: Invalid input directory: {input_dir}")
+            logger.error(f"Invalid input directory: {input_dir}")
             return
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -104,19 +108,19 @@ class BatchProcessor:
         skipped_files = total_files - valid_files
 
         if total_files == 0:
-            print("No image files found in the input directory.")
+            logger.warning("No image files found in the input directory.")
             return
 
         self._print_scan_summary(total_files, valid_files, skipped_files, overrides)
 
         if valid_files == 0:
-            print("No valid images to process.")
+            logger.warning("No valid images to process.")
             return
 
         # Determine worker count
         max_workers = self.determine_worker_count(max_workers, valid_files)
-        print(
-            f"\nProcessing {valid_files} images using {max_workers} parallel workers..."
+        logger.info(
+            f"Processing {valid_files} images using {max_workers} parallel workers..."
         )
 
         # Process images
@@ -137,7 +141,7 @@ class BatchProcessor:
         overrides: Optional[dict[str, Any]],
     ) -> None:
         """Print summary of scanned files."""
-        print(f"Found {total_files} image files:")
+        logger.info(f"Found {total_files} image files:")
 
         if overrides:
             override_desc = []
@@ -149,11 +153,11 @@ class BatchProcessor:
                 override_desc.append(
                     f"resolution {overrides['resolution'][0]}x{overrides['resolution'][1]}"
                 )
-            print(f"  • Using overrides: {', '.join(override_desc)}")
+            logger.info(f"  • Using overrides: {', '.join(override_desc)}")
 
-        print(f"  • {valid_files} meet requirements and will be processed")
+        logger.info(f"  • {valid_files} meet requirements and will be processed")
         if skipped_files > 0:
-            print(f"  • {skipped_files} will be skipped (don't meet requirements)")
+            logger.info(f"  • {skipped_files} will be skipped (don't meet requirements)")
 
     def _process_with_multiprocessing(
         self,
@@ -208,7 +212,7 @@ class BatchProcessor:
         self.progress_tracker.display_progress(
             len(valid_image_infos), len(valid_image_infos), total_time
         )
-        print()  # New line after progress bar
+        logger.debug("Processing complete")  # Debug level since progress bar shows completion
 
         return results
 
@@ -222,30 +226,30 @@ class BatchProcessor:
         max_workers: int,
     ) -> None:
         """Generate manifest and print final summary."""
-        print("\nGenerating manifest...")
+        logger.info("Generating manifest...")
         self.fs_utils.generate_manifest(results, output_dir)
 
         processed_count = sum(1 for r in results if r["status"] == "success")
 
-        # Print final summary
-        print("\n" + "=" * 60)
-        print("PROCESSING COMPLETE")
-        print("=" * 60)
-        print(f"Total image files found:     {total_files}")
-        print(f"Successfully processed:      {processed_count}")
-        print(f"Skipped (requirements):      {skipped_files}")
+        # Log final summary
+        logger.info("=" * 60)
+        logger.info("PROCESSING COMPLETE")
+        logger.info("=" * 60)
+        logger.info(f"Total image files found:     {total_files}")
+        logger.info(f"Successfully processed:      {processed_count}")
+        logger.info(f"Skipped (requirements):      {skipped_files}")
         if valid_files - processed_count > 0:
-            print(f"Failed during processing:    {valid_files - processed_count}")
-        print(f"Parallel workers used:       {max_workers}")
-        print(f"Manifest file:               {output_dir / 'manifest.json'}")
-        print(f"Output directory:            {output_dir}")
+            logger.warning(f"Failed during processing:    {valid_files - processed_count}")
+        logger.info(f"Parallel workers used:       {max_workers}")
+        logger.info(f"Manifest file:               {output_dir / 'manifest.json'}")
+        logger.info(f"Output directory:            {output_dir}")
 
         if processed_count > 0:
             total_variants = sum(
                 len(r.get("variants", [])) for r in results if r["status"] == "success"
             )
-            print(f"Total image variants created: {total_variants}")
-        print("=" * 60)
+            logger.info(f"Total image variants created: {total_variants}")
+        logger.info("=" * 60)
 
     def benchmark_workers(
         self,
@@ -254,18 +258,18 @@ class BatchProcessor:
         overrides: Optional[dict[str, Any]] = None,
     ) -> None:
         """Benchmark different worker counts to find optimal performance."""
-        print("🔍 BENCHMARKING OPTIMAL WORKER COUNT")
-        print("=" * 50)
+        logger.info("BENCHMARKING OPTIMAL WORKER COUNT")
+        logger.info("=" * 50)
 
         # Get subset of images for testing
         _, valid_image_infos = self.scan_images(input_dir, overrides)
         valid_image_infos = valid_image_infos[:10]  # Limit to 10 for benchmarking
 
         if len(valid_image_infos) < 3:
-            print("❌ Need at least 3 valid images for benchmarking")
+            logger.error("Need at least 3 valid images for benchmarking")
             return
 
-        print(f"📊 Testing with {len(valid_image_infos)} images...")
+        logger.info(f"Testing with {len(valid_image_infos)} images...")
 
         # Test different worker counts
         cpu_count = multiprocessing.cpu_count()
@@ -301,7 +305,7 @@ class BatchProcessor:
         
         try:
             for workers in test_workers:
-                print(f"\n⚡ Testing {workers} workers...")
+                logger.info(f"Testing {workers} workers...")
 
                 # Create temporary output directory within temp base
                 temp_output = temp_base / f"test_{workers}_workers"
@@ -336,10 +340,10 @@ class BatchProcessor:
                         }
                     )
 
-                    print(f"   ✅ {elapsed:.1f}s ({images_per_second:.1f} images/sec)")
+                    logger.info(f"   {elapsed:.1f}s ({images_per_second:.1f} images/sec)")
 
                 except Exception as e:
-                    print(f"   ❌ Failed: {e}")
+                    logger.error(f"   Failed: {e}")
 
                 finally:
                     # Clean up this specific test directory
@@ -358,32 +362,32 @@ class BatchProcessor:
         """Print benchmark results and recommendations."""
         best_result = max(results, key=lambda x: x["images_per_second"])
 
-        print("\n🏆 BENCHMARK RESULTS")
-        print("=" * 50)
+        logger.info("\nBENCHMARK RESULTS")
+        logger.info("=" * 50)
         for result in results:
-            marker = " 🥇" if result == best_result else ""
-            print(
+            marker = " [BEST]" if result == best_result else ""
+            logger.info(
                 f"{result['workers']:2d} workers: {result['time']:5.1f}s ({result['images_per_second']:4.1f} img/sec){marker}"
             )
 
-        print("\n🎯 RECOMMENDATION:")
-        print(f"   Use --workers {best_result['workers']} for optimal performance")
-        print(
+        logger.info("\nRECOMMENDATION:")
+        logger.info(f"   Use --workers {best_result['workers']} for optimal performance")
+        logger.info(
             f"   Expected speed: {best_result['images_per_second']:.1f} images per second"
         )
 
-        print("\n💡 SYSTEM INFO:")
-        print(f"   CPU cores: {cpu_count}")
-        print(
+        logger.info("\nSYSTEM INFO:")
+        logger.info(f"   CPU cores: {cpu_count}")
+        logger.info(
             f"   Optimal workers: {best_result['workers']} ({best_result['workers'] / cpu_count:.1f}x cores)"
         )
-        print("   Platform worker limit: 60 (applied for cross-platform compatibility)")
+        logger.info("   Platform worker limit: 60 (applied for cross-platform compatibility)")
 
         if best_result["workers"] > cpu_count:
-            print(
-                "   📈 Your system benefits from oversubscription (more workers than cores)"
+            logger.info(
+                "   Your system benefits from oversubscription (more workers than cores)"
             )
         elif best_result["workers"] < cpu_count:
-            print("   🔒 Your system is likely I/O or memory bound")
+            logger.info("   Your system is likely I/O or memory bound")
         else:
-            print("   ⚖️  Your system performs best with 1 worker per core")
+            logger.info("   Your system performs best with 1 worker per core")

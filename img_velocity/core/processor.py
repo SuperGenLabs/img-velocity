@@ -1,12 +1,16 @@
 """Image processing with smart compression and resizing."""
 
+import logging
 from pathlib import Path
 from typing import Any, Optional
 
 from PIL import Image, ImageFilter
 
 from ..utils.helpers import sanitize_filename
+from ..utils.logging import get_logger
 from .config import Configuration
+
+logger = get_logger(__name__.split('.')[-1])
 
 
 class ImageProcessor:
@@ -117,7 +121,7 @@ class ImageProcessor:
 
         except Exception as e:
             # Log error but don't crash
-            print(f"Warning: Failed to process {source_path} -> {output_path}: {e}")
+            logger.warning(f"Failed to process {source_path} -> {output_path}: {e}")
             return None
 
     def process_image(

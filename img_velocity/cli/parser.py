@@ -1,9 +1,13 @@
 """Command line interface parsing."""
 
 import argparse
+import logging
 import sys
 
 from ..utils.helpers import parse_override_params
+from ..utils.logging import get_logger
+
+logger = get_logger(__name__.split('.')[-1])
 
 
 class CLIParser:
@@ -91,6 +95,12 @@ Features:
             nargs="*",
             help='Override requirements. Usage: --override [aspect-ratio="16:9"] [resolution="1920x1080"]',
         )
+        parser.add_argument(
+            "--log-level",
+            choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+            default="INFO",
+            help="Set logging level (default: INFO)",
+        )
 
         return parser
 
@@ -131,7 +141,7 @@ Features:
                 try:
                     args.overrides = parse_override_params(args.override)
                 except ValueError as e:
-                    print(f"Error parsing override parameters: {e}")
+                    logger.error(f"Error parsing override parameters: {e}")
                     sys.exit(1)
             else:
                 args.overrides = None

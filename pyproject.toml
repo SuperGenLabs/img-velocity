@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "img-velocity"
 version = "0.1.0"
-description = "Generate responsive WebP image sets with intelligent compression for faster web performance."
+description = "High-performance responsive WebP image generation library and CLI tool."
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
