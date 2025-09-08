@@ -1,7 +1,7 @@
 # img-velocity
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey)](https://github.com/supergenlabs/img-velocity/releases)
 
 > **Stop serving massive images to mobile users. Generate responsive WebP sets that actually make your site fast.**
@@ -34,22 +34,27 @@ hero-image-3840x2160.webp (180KB) # 4K displays
 - **📊 Progress Tracking**: See exactly how fast your images are processing
 - **🧪 Performance Tuning**: Built-in benchmarking finds the optimal worker count
 - **📝 Web Integration**: Generates a manifest.json for easy web framework integration
+- **🔒 Security First**: Input validation, path sanitization, and injection protection
+- **📚 Library & CLI**: Use as a command-line tool or import as a Python library
+- **📊 Proper Logging**: Configurable logging levels instead of print statements
 
 ## 🚀 Quick Start
 
 ### Install
 
 ```bash
-# From source (recommended for now)
+# From PyPI (once published)
+pip install img-velocity
+
+# From source
 git clone https://github.com/supergenlabs/img-velocity.git
 cd img-velocity
 pip install -e .
-
-# Or grab the latest release binary
-# (Linux/macOS/Windows binaries coming soon)
 ```
 
 ### Basic Usage
+
+#### As a CLI Tool
 
 ```bash
 # Convert all images in a directory
@@ -60,6 +65,37 @@ img-velocity input/ output/ --thumbnails
 
 # Use all your CPU cores
 img-velocity input/ output/ --workers 8
+
+# Control logging verbosity
+img-velocity input/ output/ --log-level DEBUG
+```
+
+#### As a Python Library
+
+```python
+import img_velocity
+
+# Process a directory of images
+results = img_velocity.process_images(
+    "input/photos/",
+    "output/optimized/",
+    thumbnails=True,
+    workers=8
+)
+
+# Process a single image
+result = img_velocity.process_single_image(
+    "hero-image.jpg",
+    "output/",
+    thumbnails=True
+)
+
+# Advanced: Use the classes directly
+from img_velocity import Configuration, ImageProcessor
+
+config = Configuration()
+processor = ImageProcessor(config)
+# ... custom processing logic
 ```
 
 That's it. Point it at a folder of images, and it'll organize everything by aspect ratio and generate multiple WebP sizes for each.
@@ -200,10 +236,25 @@ img-velocity input/ output/ --override aspect-ratio="21:9" resolution="2560x1080
 
 ```bash
 # Benchmark different worker counts
-img-velocity input/ output/ --benchmark
+img-velocity --benchmark input/
 ```
 
 This will test 1, 2, 4, 8+ workers and tell you which gives the best performance on your system.
+
+### Logging and Debugging
+
+Control the verbosity of output with the `--log-level` flag:
+
+```bash
+# Show only errors
+img-velocity input/ output/ --log-level ERROR
+
+# Normal operation (default)
+img-velocity input/ output/ --log-level INFO
+
+# Verbose output for debugging
+img-velocity input/ output/ --log-level DEBUG
+```
 
 ### Supported Image Types & Requirements
 
@@ -349,7 +400,7 @@ OUTPUT_CONFIGS = {
 ```
 img-velocity/
 ├── img_velocity/
-│   ├── __init__.py              # Package exports
+│   ├── __init__.py              # Package exports and library API
 │   ├── main.py                  # CLI entry point
 │   ├── cli/
 │   │   └── parser.py            # Command line argument parsing
@@ -361,8 +412,11 @@ img-velocity/
 │   └── utils/                   # Utilities
 │       ├── progress.py          # Progress tracking
 │       ├── filesystem.py        # Manifest generation
-│       └── helpers.py           # General utilities
+│       ├── helpers.py           # General utilities
+│       ├── logging.py           # Logging configuration
+│       └── security.py          # Input validation and sanitization
 ├── tests/                       # Comprehensive test suite
+├── requirements.txt            # Production dependencies (just Pillow)
 └── pyproject.toml              # Project configuration
 ```
 
@@ -373,6 +427,8 @@ img-velocity/
 - **`ImageProcessor`**: Core image processing with smart sharpening and WebP conversion
 - **`BatchProcessor`**: Orchestrates parallel processing and progress tracking
 - **`ProgressTracker`**: Real-time progress bars with ETA calculations
+- **`SecurityValidator`**: Input validation and path sanitization for security
+- **Logging System**: Structured logging with configurable levels
 
 ## 🤝 Contributing
 
@@ -391,7 +447,6 @@ source venv/bin/activate  # Linux/macOS
 
 # Install in development mode
 pip install -e .
-pip install -r requirements-test.txt
 ```
 
 ### Code Quality Standards
@@ -406,7 +461,7 @@ make format  # or: black img_velocity/ tests/ && isort img_velocity/ tests/
 make lint    # or: flake8 img_velocity/ tests/ && mypy img_velocity/
 
 # Run security checks
-make security  # or: bandit -r img_velocity/ && safety check
+make security  # or: bandit -r img_velocity/
 
 # Before you commit
 make pre-commit  # Runs format, lint, and fast tests
@@ -469,6 +524,16 @@ Perf: Optimize image processing pipeline
 - **Platform Support**: Better Windows compatibility testing
 - **Web Integration**: Framework-specific helper libraries
 - **Documentation**: More real-world usage examples
+
+## 🔒 Security Features
+
+img-velocity includes comprehensive security measures:
+
+- **Path Traversal Protection**: All file paths are validated and sanitized
+- **Input Validation**: Resolution limits (1-50,000px) prevent resource exhaustion
+- **Safe Filename Handling**: Automatic sanitization of filenames
+- **No Command Injection**: No shell commands or dynamic code execution
+- **Resource Limits**: Worker count limits prevent system overload
 
 ## 🎯 Performance Tips
 
