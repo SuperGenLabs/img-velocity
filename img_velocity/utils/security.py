@@ -2,7 +2,7 @@
 
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 from ..utils.logging import get_logger
 
@@ -145,7 +145,7 @@ class SecurityValidator:
         return validated_path
 
     @staticmethod
-    def validate_resolution(width: int, height: int) -> tuple[int, int]:
+    def validate_resolution(width: int, height: int) -> Tuple[int, int]:
         """
         Validate image resolution values.
 

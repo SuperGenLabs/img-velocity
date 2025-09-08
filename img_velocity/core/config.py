@@ -1,6 +1,7 @@
 """Configuration management for image processing."""
 
 from math import gcd
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class Configuration:
@@ -168,22 +169,22 @@ class Configuration:
     }
 
     @staticmethod
-    def get_aspect_ratio(width: int, height: int) -> tuple[int, int]:
+    def get_aspect_ratio(width: int, height: int) -> Tuple[int, int]:
         """Calculate simplified aspect ratio."""
         divisor = gcd(width, height)
         return (width // divisor, height // divisor)
 
     @classmethod
     def get_output_sizes(
-        cls, aspect_ratio: tuple[int, int]
-    ) -> dict[str, list[tuple[int, int]]]:
+        cls, aspect_ratio: Tuple[int, int]
+    ) -> Dict[str, List[Tuple[int, int]]]:
         """Get output sizes for aspect ratio."""
         return cls.OUTPUT_CONFIGS.get(aspect_ratio, {})
 
     @classmethod
     def get_output_sizes_with_override(
-        cls, aspect_ratio: tuple[int, int], overrides: dict[str, any] | None = None
-    ) -> dict[str, list[tuple[int, int]]]:
+        cls, aspect_ratio: Tuple[int, int], overrides: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, List[Tuple[int, int]]]:
         """Get output sizes for aspect ratio, considering overrides."""
         if not overrides:
             return cls.get_output_sizes(aspect_ratio)

@@ -1,6 +1,7 @@
 """Image processing with smart compression and resizing."""
 
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from PIL import Image, ImageFilter
 
@@ -21,8 +22,8 @@ class ImageProcessor:
     def apply_smart_sharpening(
         self,
         img: Image.Image,
-        original_size: tuple[int, int],
-        target_size: tuple[int, int],
+        original_size: Tuple[int, int],
+        target_size: Tuple[int, int],
     ) -> Image.Image:
         """Apply smart sharpening based on downscale factor."""
         original_width, original_height = original_size
@@ -50,8 +51,8 @@ class ImageProcessor:
         return img.filter(sharpening_filter)
 
     def process_single_size(
-        self, args: tuple[Path, Path, tuple[int, int], tuple[int, int], bool, Path]
-    ) -> dict[str, any] | None:
+        self, args: Tuple[Path, Path, Tuple[int, int], Tuple[int, int], bool, Path]
+    ) -> Optional[Dict[str, Any]]:
         """Process a single image size variant."""
         (
             source_path,
@@ -128,11 +129,11 @@ class ImageProcessor:
 
     def process_image(
         self,
-        image_info: dict[str, any],
+        image_info: Dict[str, Any],
         output_dir: Path,
         thumbnails: bool = False,
-        overrides: dict[str, any] | None = None,
-    ) -> dict[str, any]:
+        overrides: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Process a single image into all required variants."""
         source_path = image_info["path"]
         aspect_ratio = image_info["aspect_ratio"]

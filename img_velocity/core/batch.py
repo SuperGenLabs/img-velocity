@@ -6,7 +6,7 @@ import tempfile
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.filesystem import FileSystemUtils
 from ..utils.logging import get_logger
@@ -19,11 +19,11 @@ logger = get_logger(__name__.split(".")[-1])
 
 
 def process_image_wrapper(
-    image_info: dict[str, any],
+    image_info: Dict[str, Any],
     output_dir: Path,
     thumbnails: bool = False,
-    overrides: dict[str, any] | None = None,
-) -> dict[str, any]:
+    overrides: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Wrapper function for multiprocessing."""
     # Import here to avoid circular import
     from .processor import ImageProcessor
@@ -54,8 +54,8 @@ class BatchProcessor:
         return self._processor
 
     def scan_images(
-        self, input_dir: Path, overrides: dict[str, any] | None = None
-    ) -> tuple[list[Path], list[dict[str, any]]]:
+        self, input_dir: Path, overrides: Optional[Dict[str, Any]] = None
+    ) -> Tuple[List[Path], List[Dict[str, Any]]]:
         """Scan directory for valid images that meet requirements."""
         logger.info("Scanning for images...")
 
@@ -99,7 +99,7 @@ class BatchProcessor:
         output_dir: Path,
         thumbnails: bool = False,
         max_workers: Optional[int] = None,
-        overrides: dict[str, any] | None = None,
+        overrides: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Process all images in input directory."""
         # Validate input paths
@@ -161,7 +161,7 @@ class BatchProcessor:
         total_files: int,
         valid_files: int,
         skipped_files: int,
-        overrides: dict[str, any] | None,
+        overrides: Optional[Dict[str, Any]],
     ) -> None:
         """Print summary of scanned files."""
         logger.info(f"Found {total_files} image files:")
@@ -186,12 +186,12 @@ class BatchProcessor:
 
     def _process_with_multiprocessing(
         self,
-        valid_image_infos: list[dict[str, any]],
+        valid_image_infos: List[Dict[str, Any]],
         output_dir: Path,
         thumbnails: bool,
         max_workers: int,
-        overrides: dict[str, any] | None,
-    ) -> list[dict[str, any]]:
+        overrides: Optional[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
         """Process images using multiprocessing."""
         results = []
         processed_count = 0
@@ -245,7 +245,7 @@ class BatchProcessor:
 
     def _finalize_processing(
         self,
-        results: list[dict[str, any]],
+        results: List[Dict[str, Any]],
         output_dir: Path,
         total_files: int,
         valid_files: int,
@@ -284,7 +284,7 @@ class BatchProcessor:
         self,
         input_dir: Path,
         thumbnails: bool = False,
-        overrides: dict[str, any] | None = None,
+        overrides: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Benchmark different worker counts to find optimal performance."""
         # Validate input path
@@ -328,11 +328,11 @@ class BatchProcessor:
 
     def _run_benchmark_tests(
         self,
-        test_workers: list[int],
-        valid_image_infos: list[dict[str, any]],
+        test_workers: List[int],
+        valid_image_infos: List[Dict[str, Any]],
         thumbnails: bool,
-        overrides: dict[str, any] | None,
-    ) -> list[dict[str, any]]:
+        overrides: Optional[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
         """Run benchmark tests with different worker counts."""
         results = []
 
@@ -395,7 +395,7 @@ class BatchProcessor:
         return results
 
     def _print_benchmark_results(
-        self, results: list[dict[str, any]], cpu_count: int
+        self, results: List[Dict[str, Any]], cpu_count: int
     ) -> None:
         """Print benchmark results and recommendations."""
         best_result = max(results, key=lambda x: x["images_per_second"])

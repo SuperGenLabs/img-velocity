@@ -2,6 +2,7 @@
 
 import math
 import re
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def format_time(seconds: float) -> str:
@@ -35,7 +36,7 @@ def sanitize_filename(filename: str) -> str:
     return sanitized.strip("-")
 
 
-def parse_override_params(override_args: list[str]) -> dict[str, any]:
+def parse_override_params(override_args: List[str]) -> Dict[str, Any]:
     """Parse override parameters from command line arguments."""
     from .security import SecurityValidator
 
