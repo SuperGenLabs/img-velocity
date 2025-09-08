@@ -1,6 +1,8 @@
 """Batch processing orchestration."""
 
 import multiprocessing
+import shutil
+import tempfile
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -248,7 +250,6 @@ class BatchProcessor:
     def benchmark_workers(
         self,
         input_dir: Path,
-        output_dir: Path,
         thumbnails: bool = False,
         overrides: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -279,7 +280,7 @@ class BatchProcessor:
             test_workers = sorted(set(test_workers))
 
         results = self._run_benchmark_tests(
-            test_workers, valid_image_infos, output_dir, thumbnails, overrides
+            test_workers, valid_image_infos, thumbnails, overrides
         )
 
         if results:
@@ -289,61 +290,66 @@ class BatchProcessor:
         self,
         test_workers: list[int],
         valid_image_infos: list[dict[str, Any]],
-        output_dir: Path,
         thumbnails: bool,
         overrides: Optional[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Run benchmark tests with different worker counts."""
         results = []
+        
+        # Create a base temp directory for all benchmark runs
+        temp_base = Path(tempfile.mkdtemp(prefix="img_velocity_benchmark_"))
+        
+        try:
+            for workers in test_workers:
+                print(f"\n⚡ Testing {workers} workers...")
 
-        for workers in test_workers:
-            print(f"\n⚡ Testing {workers} workers...")
+                # Create temporary output directory within temp base
+                temp_output = temp_base / f"test_{workers}_workers"
+                temp_output.mkdir(parents=True, exist_ok=True)
 
-            # Create temporary output directory
-            temp_output = output_dir / f"benchmark_temp_{workers}"
-            temp_output.mkdir(parents=True, exist_ok=True)
+                start_time = time.time()
 
-            start_time = time.time()
+                try:
+                    with ProcessPoolExecutor(max_workers=workers) as executor:
+                        futures = [
+                            executor.submit(
+                                process_image_wrapper,
+                                info,
+                                temp_output,
+                                thumbnails,
+                                overrides,
+                            )
+                            for info in valid_image_infos
+                        ]
 
-            try:
-                with ProcessPoolExecutor(max_workers=workers) as executor:
-                    futures = [
-                        executor.submit(
-                            process_image_wrapper,
-                            info,
-                            temp_output,
-                            thumbnails,
-                            overrides,
-                        )
-                        for info in valid_image_infos
-                    ]
+                        for future in as_completed(futures):
+                            future.result()  # Wait for completion
 
-                    for future in as_completed(futures):
-                        future.result()  # Wait for completion
+                    elapsed = time.time() - start_time
+                    images_per_second = len(valid_image_infos) / elapsed
 
-                elapsed = time.time() - start_time
-                images_per_second = len(valid_image_infos) / elapsed
+                    results.append(
+                        {
+                            "workers": workers,
+                            "time": elapsed,
+                            "images_per_second": images_per_second,
+                        }
+                    )
 
-                results.append(
-                    {
-                        "workers": workers,
-                        "time": elapsed,
-                        "images_per_second": images_per_second,
-                    }
-                )
+                    print(f"   ✅ {elapsed:.1f}s ({images_per_second:.1f} images/sec)")
 
-                print(f"   ✅ {elapsed:.1f}s ({images_per_second:.1f} images/sec)")
+                except Exception as e:
+                    print(f"   ❌ Failed: {e}")
 
-            except Exception as e:
-                print(f"   ❌ Failed: {e}")
-
-            finally:
-                # Clean up temp directory
-                import shutil
-
-                if temp_output.exists():
-                    shutil.rmtree(temp_output)
-
+                finally:
+                    # Clean up this specific test directory
+                    if temp_output.exists():
+                        shutil.rmtree(temp_output)
+        finally:
+            # Clean up the entire temp base directory
+            if temp_base.exists():
+                shutil.rmtree(temp_base, ignore_errors=True)
+            
         return results
 
     def _print_benchmark_results(

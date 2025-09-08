@@ -1,0 +1,2 @@
+# Image processing library with WebP support
+Pillow>=11.3.0

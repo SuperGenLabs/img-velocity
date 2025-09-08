@@ -12,8 +12,10 @@ class Configuration:
     MIN_REQUIREMENTS = {
         (1, 1): (1600, 1600),
         (16, 9): (3840, 2160),
+        (21, 9): (3440, 1440),  # Ultrawide monitors
         (4, 3): (2048, 1536),
         (3, 2): (3456, 2304),
+        (4, 5): (1600, 2000),  # Instagram portrait
         (9, 16): (810, 1440),
         (3, 4): (1536, 2048),
         (2, 3): (1024, 1536),
@@ -24,73 +26,121 @@ class Configuration:
     OUTPUT_CONFIGS = {
         (1, 1): {
             "folder": "square-1-1",
-            "sizes": [(1600, 1600), (800, 800), (400, 400), (300, 300), (200, 200)],
-            "thumbnail_sizes": [(150, 150), (75, 75)],
+            "sizes": [
+                (1600, 1600),  # High-res gallery/zoom
+                (1080, 1080),  # Instagram full size
+                (800, 800),    # Desktop grid
+                (600, 600),    # Small desktop
+                (400, 400),    # Mobile grid
+                (200, 200),    # Thumbnail grid
+                (100, 100),    # Small thumbnail
+            ],
+            "thumbnail_sizes": [(64, 64), (32, 32)],  # Icons and blur-up
         },
         (16, 9): {
             "folder": "landscape-16-9",
             "sizes": [
-                (3840, 2160),
-                (2048, 1152),
-                (1920, 1080),
-                (1024, 576),
-                (856, 482),
-                (428, 241),
+                (3840, 2160),  # 4K displays
+                (2560, 1440),  # 1440p displays
+                (1920, 1080),  # Full HD
+                (1280, 720),   # HD/laptop
+                (768, 432),    # Tablet
+                (640, 360),    # Large mobile
+                (390, 219),    # iPhone 14 Pro
+                (375, 211),    # iPhone SE
             ],
-            "thumbnail_sizes": [(320, 180), (214, 120), (160, 90)],
+            "thumbnail_sizes": [(160, 90), (64, 36), (32, 18)],  # Lazy load progression
+        },
+        (21, 9): {
+            "folder": "ultrawide-21-9",
+            "sizes": [
+                (3440, 1440),  # Native ultrawide
+                (2560, 1080),  # Smaller ultrawide
+                (1920, 810),   # HD ultrawide
+                (1280, 540),   # Laptop
+                (768, 324),    # Tablet (fallback)
+                (640, 270),    # Mobile (fallback)
+            ],
+            "thumbnail_sizes": [(210, 90), (105, 45)],  # Cinematic thumbs
         },
         (4, 3): {
             "folder": "landscape-4-3",
             "sizes": [
-                (2048, 1536),
-                (1600, 1200),
-                (1024, 768),
-                (960, 720),
-                (800, 600),
-                (480, 360),
+                (2048, 1536),  # High-res
+                (1600, 1200),  # Desktop
+                (1280, 960),   # Standard
+                (1024, 768),   # iPad landscape
+                (768, 576),    # Tablet
+                (640, 480),    # Mobile landscape
+                (400, 300),    # Mobile
             ],
-            "thumbnail_sizes": [(320, 240), (200, 150), (133, 100)],
+            "thumbnail_sizes": [(160, 120), (80, 60), (32, 24)],
         },
         (3, 2): {
             "folder": "landscape-3-2",
             "sizes": [
-                (3456, 2304),
-                (2048, 1366),
-                (1728, 1152),
-                (1024, 683),
-                (960, 640),
-                (480, 320),
+                (3456, 2304),  # DSLR native
+                (2400, 1600),  # High-res
+                (1920, 1280),  # Desktop
+                (1440, 960),   # Laptop
+                (1200, 800),   # Small desktop
+                (768, 512),    # Tablet
+                (600, 400),    # Mobile landscape
+                (375, 250),    # iPhone
             ],
-            "thumbnail_sizes": [(300, 200), (225, 150), (150, 100)],
+            "thumbnail_sizes": [(150, 100), (75, 50), (30, 20)],
+        },
+        (4, 5): {
+            "folder": "instagram-4-5",
+            "sizes": [
+                (1600, 2000),  # High-res export
+                (1080, 1350),  # Instagram max
+                (800, 1000),   # Desktop display
+                (640, 800),    # Tablet
+                (480, 600),    # Mobile landscape
+                (400, 500),    # Mobile portrait
+                (320, 400),    # Small mobile
+            ],
+            "thumbnail_sizes": [(160, 200), (80, 100), (32, 40)],
         },
         (9, 16): {
             "folder": "portrait-9-16",
             "sizes": [
-                (810, 1440),
-                (720, 1280),
-                (540, 960),
-                (405, 720),
-                (360, 640),
-                (270, 480),
+                (1080, 1920),  # Stories/Reels HD
+                (720, 1280),   # Standard stories
+                (540, 960),    # Reduced quality
+                (428, 761),    # iPhone 14 Pro Max
+                (390, 693),    # iPhone 14 Pro
+                (375, 667),    # iPhone SE
+                (360, 640),    # Android
             ],
-            "thumbnail_sizes": [(135, 240), (90, 160), (67, 120)],
+            "thumbnail_sizes": [(90, 160), (45, 80), (18, 32)],
         },
         (3, 4): {
             "folder": "portrait-3-4",
-            "sizes": [(1536, 2048), (1200, 1600), (768, 1024), (600, 800), (300, 400)],
-            "thumbnail_sizes": [(225, 300), (150, 200), (75, 100)],
+            "sizes": [
+                (1536, 2048),  # iPad Pro portrait
+                (1200, 1600),  # High-res
+                (900, 1200),   # Desktop
+                (768, 1024),   # iPad portrait
+                (600, 800),    # Tablet
+                (450, 600),    # Mobile
+                (375, 500),    # iPhone portrait
+            ],
+            "thumbnail_sizes": [(150, 200), (75, 100), (30, 40)],
         },
         (2, 3): {
             "folder": "portrait-2-3",
             "sizes": [
-                (1024, 1536),
-                (800, 1200),
-                (640, 960),
-                (512, 768),
-                (400, 600),
-                (320, 480),
+                (1600, 2400),  # Print quality
+                (1200, 1800),  # High-res
+                (1000, 1500),  # Desktop
+                (800, 1200),   # Standard
+                (600, 900),    # Tablet
+                (400, 600),    # Mobile
+                (320, 480),    # Small mobile
             ],
-            "thumbnail_sizes": [(200, 300), (134, 200), (100, 150)],
+            "thumbnail_sizes": [(160, 240), (80, 120), (32, 48)],
         },
         (5, 1): {
             "folder": "wide-banner-5-1",
@@ -102,7 +152,7 @@ class Configuration:
                 (856, 172),
                 (428, 86),
             ],
-            "thumbnail_sizes": [],
+            "thumbnail_sizes": [(320, 64), (160, 32)],
         },
         (8, 1): {
             "folder": "slim-banner-8-1",
@@ -114,7 +164,7 @@ class Configuration:
                 (856, 108),
                 (428, 54),
             ],
-            "thumbnail_sizes": [],
+            "thumbnail_sizes": [(320, 40), (160, 20)],
         },
     }
 

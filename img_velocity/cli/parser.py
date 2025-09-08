@@ -19,13 +19,20 @@ class CLIParser:
             description="Convert images to multiple WebP sizes with smart optimization",
             formatter_class=argparse.RawDescriptionHelpFormatter,
             epilog="""
+Usage examples:
+  img-velocity input/ output/                    # Process images
+  img-velocity input/ output/ --thumbnails       # Include thumbnails
+  img-velocity --benchmark input/                # Find optimal worker count
+
 Supported input formats: JPEG, PNG, WebP
 
 Minimum size requirements by aspect ratio:
   • Square (1:1): 1600×1600
   • Landscape 16:9: 3840×2160
+  • Landscape 21:9: 3440×1440  # Ultrawide
   • Landscape 4:3: 2048×1536
   • Landscape 3:2: 3456×2304
+  • Instagram 4:5: 1600×2000
   • Portrait 9:16: 810×1440
   • Portrait 3:4: 1536×2048
   • Portrait 2:3: 1024×1536
@@ -44,6 +51,12 @@ When using overrides:
   • Resolution overrides set the maximum output size (scales down from there)
   • Custom aspect ratios create folders like "custom-16-9"
 
+Benchmark mode:
+  • Tests different worker counts (1, CPU/2, CPU, CPU*2, etc.)
+  • Uses system temp directory for test output
+  • Recommends optimal --workers value for your system
+  • Tests with first 10 valid images from input directory
+
 Features:
   • Parallel processing for speed
   • Smart sharpening for downscaled images
@@ -54,16 +67,24 @@ Features:
             """,
         )
 
-        parser.add_argument("input_dir", help="Input directory containing images")
-        parser.add_argument("output_dir", help="Output directory for WebP variants")
+        parser.add_argument(
+            "input_dir", 
+            nargs="?",
+            help="Input directory containing images"
+        )
+        parser.add_argument(
+            "output_dir", 
+            nargs="?",
+            help="Output directory for WebP variants"
+        )
         parser.add_argument(
             "--thumbnails", action="store_true", help="Generate thumbnail variants"
         )
         parser.add_argument("--workers", type=int, help="Number of parallel workers")
         parser.add_argument(
             "--benchmark",
-            action="store_true",
-            help="Benchmark different worker counts to find optimal performance",
+            metavar="INPUT_DIR",
+            help="Benchmark different worker counts using images from INPUT_DIR",
         )
         parser.add_argument(
             "--override",
