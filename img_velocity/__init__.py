@@ -101,7 +101,11 @@ def process_single_image(
         return {"status": "error", "source": str(image_path), "error": "Invalid image"}
 
     if not validator.meets_requirements_with_override(image_info, overrides):
-        return {"status": "skipped", "source": str(image_path), "reason": "requirements"}
+        return {
+            "status": "skipped",
+            "source": str(image_path),
+            "reason": "requirements",
+        }
 
     return processor.process_image(
         image_info,

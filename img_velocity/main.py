@@ -20,7 +20,7 @@ def main():
     args = cli_parser.parse_args()
 
     # Set up logging with level from CLI args
-    log_level = getattr(args, 'log_level', 'INFO')
+    log_level = getattr(args, "log_level", "INFO")
     logger = setup_logging(level=log_level)
 
     # Create batch processor

@@ -9,7 +9,7 @@ from ..utils.logging import get_logger
 from ..utils.security import SecurityValidator
 from .config import Configuration
 
-logger = get_logger(__name__.split('.')[-1])
+logger = get_logger(__name__.split(".")[-1])
 
 
 class ImageProcessor:
@@ -159,11 +159,7 @@ class ImageProcessor:
             output_subdir = SecurityValidator.validate_path(output_subdir, output_dir)
         except ValueError as e:
             logger.error(f"Invalid output path for {source_path.name}: {e}")
-            return {
-                "status": "error",
-                "source": source_path.name,
-                "error": str(e)
-            }
+            return {"status": "error", "source": source_path.name, "error": str(e)}
         output_subdir.mkdir(parents=True, exist_ok=True)
 
         variants = []

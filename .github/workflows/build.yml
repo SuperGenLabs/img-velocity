@@ -41,13 +41,7 @@ jobs:
     
     - name: Build binary
       run: |
-        pyinstaller --onefile \
-          --name img-velocity \
-          --hidden-import PIL \
-          --hidden-import PIL.Image \
-          --hidden-import PIL.ImageFilter \
-          --clean \
-          img_velocity/main.py
+        pyinstaller --onefile --name img-velocity --hidden-import PIL --hidden-import PIL.Image --hidden-import PIL.ImageFilter --clean img_velocity/main.py
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

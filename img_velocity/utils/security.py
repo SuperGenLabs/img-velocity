@@ -2,10 +2,11 @@
 
 import re
 from pathlib import Path
+from typing import Optional
 
 from ..utils.logging import get_logger
 
-logger = get_logger(__name__.split('.')[-1])
+logger = get_logger(__name__.split(".")[-1])
 
 
 class SecurityValidator:
@@ -19,7 +20,7 @@ class SecurityValidator:
     MAX_PATH_LENGTH = 4096
 
     @staticmethod
-    def validate_path(path: Path, base_dir: Path | None = None) -> Path:
+    def validate_path(path: Path, base_dir: Optional[Path] = None) -> Path:
         """
         Validate and sanitize a file path to prevent directory traversal.
 
@@ -59,7 +60,7 @@ class SecurityValidator:
                 ) from None
 
         # Check for null bytes (can terminate strings early in some contexts)
-        if '\x00' in str(resolved_path):
+        if "\x00" in str(resolved_path):
             raise ValueError("Path contains null bytes")
 
         return resolved_path
@@ -83,24 +84,25 @@ class SecurityValidator:
             raise ValueError("Filename cannot be empty")
 
         # Remove path separators to prevent directory traversal
-        filename = filename.replace('/', '').replace('\\', '')
+        filename = filename.replace("/", "").replace("\\", "")
 
         # Remove unsafe characters
-        filename = SecurityValidator.UNSAFE_FILENAME_CHARS.sub('', filename)
+        filename = SecurityValidator.UNSAFE_FILENAME_CHARS.sub("", filename)
 
         # Handle dots
         if not allow_dots:
-            filename = filename.replace('.', '')
+            filename = filename.replace(".", "")
         else:
             # Prevent hidden files and directory traversal via ..
-            while filename.startswith('.'):
+            while filename.startswith("."):
                 filename = filename[1:]
-            filename = filename.replace('..', '')
+            filename = filename.replace("..", "")
 
         # Limit length
         if len(filename) > SecurityValidator.MAX_FILENAME_LENGTH:
             # Preserve extension if present
             from pathlib import Path
+
             p = Path(filename)
             ext = p.suffix
             name = p.stem
@@ -108,7 +110,7 @@ class SecurityValidator:
             filename = name[:max_name_length] + ext
 
         # Final validation
-        if not filename or filename in ('.', '..'):
+        if not filename or filename in (".", ".."):
             raise ValueError("Invalid filename after sanitization")
 
         return filename
@@ -132,11 +134,9 @@ class SecurityValidator:
         validated_path = SecurityValidator.validate_path(image_path, base_dir)
 
         # Check file extension
-        allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'}
+        allowed_extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
         if validated_path.suffix.lower() not in allowed_extensions:
-            raise ValueError(
-                f"Invalid image file extension: {validated_path.suffix}"
-            )
+            raise ValueError(f"Invalid image file extension: {validated_path.suffix}")
 
         # Ensure it's a file, not a directory
         if validated_path.exists() and validated_path.is_dir():
@@ -180,7 +180,7 @@ class SecurityValidator:
         return (width, height)
 
     @staticmethod
-    def validate_worker_count(workers: int | None) -> int | None:
+    def validate_worker_count(workers: Optional[int]) -> Optional[int]:
         """
         Validate worker count for multiprocessing.
 

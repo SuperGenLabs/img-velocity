@@ -28,11 +28,11 @@ class Configuration:
             "sizes": [
                 (1600, 1600),  # High-res gallery/zoom
                 (1080, 1080),  # Instagram full size
-                (800, 800),    # Desktop grid
-                (600, 600),    # Small desktop
-                (400, 400),    # Mobile grid
-                (200, 200),    # Thumbnail grid
-                (100, 100),    # Small thumbnail
+                (800, 800),  # Desktop grid
+                (600, 600),  # Small desktop
+                (400, 400),  # Mobile grid
+                (200, 200),  # Thumbnail grid
+                (100, 100),  # Small thumbnail
             ],
             "thumbnail_sizes": [(64, 64), (32, 32)],  # Icons and blur-up
         },
@@ -42,11 +42,11 @@ class Configuration:
                 (3840, 2160),  # 4K displays
                 (2560, 1440),  # 1440p displays
                 (1920, 1080),  # Full HD
-                (1280, 720),   # HD/laptop
-                (768, 432),    # Tablet
-                (640, 360),    # Large mobile
-                (390, 219),    # iPhone 14 Pro
-                (375, 211),    # iPhone SE
+                (1280, 720),  # HD/laptop
+                (768, 432),  # Tablet
+                (640, 360),  # Large mobile
+                (390, 219),  # iPhone 14 Pro
+                (375, 211),  # iPhone SE
             ],
             "thumbnail_sizes": [(160, 90), (64, 36), (32, 18)],  # Lazy load progression
         },
@@ -55,10 +55,10 @@ class Configuration:
             "sizes": [
                 (3440, 1440),  # Native ultrawide
                 (2560, 1080),  # Smaller ultrawide
-                (1920, 810),   # HD ultrawide
-                (1280, 540),   # Laptop
-                (768, 324),    # Tablet (fallback)
-                (640, 270),    # Mobile (fallback)
+                (1920, 810),  # HD ultrawide
+                (1280, 540),  # Laptop
+                (768, 324),  # Tablet (fallback)
+                (640, 270),  # Mobile (fallback)
             ],
             "thumbnail_sizes": [(210, 90), (105, 45)],  # Cinematic thumbs
         },
@@ -67,11 +67,11 @@ class Configuration:
             "sizes": [
                 (2048, 1536),  # High-res
                 (1600, 1200),  # Desktop
-                (1280, 960),   # Standard
-                (1024, 768),   # iPad landscape
-                (768, 576),    # Tablet
-                (640, 480),    # Mobile landscape
-                (400, 300),    # Mobile
+                (1280, 960),  # Standard
+                (1024, 768),  # iPad landscape
+                (768, 576),  # Tablet
+                (640, 480),  # Mobile landscape
+                (400, 300),  # Mobile
             ],
             "thumbnail_sizes": [(160, 120), (80, 60), (32, 24)],
         },
@@ -81,11 +81,11 @@ class Configuration:
                 (3456, 2304),  # DSLR native
                 (2400, 1600),  # High-res
                 (1920, 1280),  # Desktop
-                (1440, 960),   # Laptop
-                (1200, 800),   # Small desktop
-                (768, 512),    # Tablet
-                (600, 400),    # Mobile landscape
-                (375, 250),    # iPhone
+                (1440, 960),  # Laptop
+                (1200, 800),  # Small desktop
+                (768, 512),  # Tablet
+                (600, 400),  # Mobile landscape
+                (375, 250),  # iPhone
             ],
             "thumbnail_sizes": [(150, 100), (75, 50), (30, 20)],
         },
@@ -94,11 +94,11 @@ class Configuration:
             "sizes": [
                 (1600, 2000),  # High-res export
                 (1080, 1350),  # Instagram max
-                (800, 1000),   # Desktop display
-                (640, 800),    # Tablet
-                (480, 600),    # Mobile landscape
-                (400, 500),    # Mobile portrait
-                (320, 400),    # Small mobile
+                (800, 1000),  # Desktop display
+                (640, 800),  # Tablet
+                (480, 600),  # Mobile landscape
+                (400, 500),  # Mobile portrait
+                (320, 400),  # Small mobile
             ],
             "thumbnail_sizes": [(160, 200), (80, 100), (32, 40)],
         },
@@ -106,12 +106,12 @@ class Configuration:
             "folder": "portrait-9-16",
             "sizes": [
                 (1080, 1920),  # Stories/Reels HD
-                (720, 1280),   # Standard stories
-                (540, 960),    # Reduced quality
-                (428, 761),    # iPhone 14 Pro Max
-                (390, 693),    # iPhone 14 Pro
-                (375, 667),    # iPhone SE
-                (360, 640),    # Android
+                (720, 1280),  # Standard stories
+                (540, 960),  # Reduced quality
+                (428, 761),  # iPhone 14 Pro Max
+                (390, 693),  # iPhone 14 Pro
+                (375, 667),  # iPhone SE
+                (360, 640),  # Android
             ],
             "thumbnail_sizes": [(90, 160), (45, 80), (18, 32)],
         },
@@ -120,11 +120,11 @@ class Configuration:
             "sizes": [
                 (1536, 2048),  # iPad Pro portrait
                 (1200, 1600),  # High-res
-                (900, 1200),   # Desktop
-                (768, 1024),   # iPad portrait
-                (600, 800),    # Tablet
-                (450, 600),    # Mobile
-                (375, 500),    # iPhone portrait
+                (900, 1200),  # Desktop
+                (768, 1024),  # iPad portrait
+                (600, 800),  # Tablet
+                (450, 600),  # Mobile
+                (375, 500),  # iPhone portrait
             ],
             "thumbnail_sizes": [(150, 200), (75, 100), (30, 40)],
         },
@@ -134,10 +134,10 @@ class Configuration:
                 (1600, 2400),  # Print quality
                 (1200, 1800),  # High-res
                 (1000, 1500),  # Desktop
-                (800, 1200),   # Standard
-                (600, 900),    # Tablet
-                (400, 600),    # Mobile
-                (320, 480),    # Small mobile
+                (800, 1200),  # Standard
+                (600, 900),  # Tablet
+                (400, 600),  # Mobile
+                (320, 480),  # Small mobile
             ],
             "thumbnail_sizes": [(160, 240), (80, 120), (32, 48)],
         },

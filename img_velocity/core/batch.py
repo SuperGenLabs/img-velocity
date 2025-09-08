@@ -6,6 +6,7 @@ import tempfile
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+from typing import Optional
 
 from ..utils.filesystem import FileSystemUtils
 from ..utils.logging import get_logger
@@ -14,7 +15,7 @@ from ..utils.security import SecurityValidator
 from .config import Configuration
 from .validator import ImageValidator
 
-logger = get_logger(__name__.split('.')[-1])
+logger = get_logger(__name__.split(".")[-1])
 
 
 def process_image_wrapper(
@@ -65,7 +66,9 @@ class BatchProcessor:
             if file_path.is_file():
                 try:
                     # Validate each file path
-                    validated_path = SecurityValidator.validate_image_path(file_path, input_dir)
+                    validated_path = SecurityValidator.validate_image_path(
+                        file_path, input_dir
+                    )
                     all_image_files.append(validated_path)
                     info = self.validator.get_image_info(validated_path)
                     if info and self.validator.meets_requirements_with_override(
@@ -79,7 +82,7 @@ class BatchProcessor:
         return all_image_files, valid_image_infos
 
     def determine_worker_count(
-        self, max_workers: int | None, image_count: int
+        self, max_workers: Optional[int], image_count: int
     ) -> int:
         """Determine optimal number of workers."""
         if max_workers is None:
@@ -95,7 +98,7 @@ class BatchProcessor:
         input_dir: Path,
         output_dir: Path,
         thumbnails: bool = False,
-        max_workers: int | None = None,
+        max_workers: Optional[int] = None,
         overrides: dict[str, any] | None = None,
     ) -> None:
         """Process all images in input directory."""
@@ -177,7 +180,9 @@ class BatchProcessor:
 
         logger.info(f"  • {valid_files} meet requirements and will be processed")
         if skipped_files > 0:
-            logger.info(f"  • {skipped_files} will be skipped (don't meet requirements)")
+            logger.info(
+                f"  • {skipped_files} will be skipped (don't meet requirements)"
+            )
 
     def _process_with_multiprocessing(
         self,
@@ -232,7 +237,9 @@ class BatchProcessor:
         self.progress_tracker.display_progress(
             len(valid_image_infos), len(valid_image_infos), total_time
         )
-        logger.debug("Processing complete")  # Debug level since progress bar shows completion
+        logger.debug(
+            "Processing complete"
+        )  # Debug level since progress bar shows completion
 
         return results
 
@@ -259,7 +266,9 @@ class BatchProcessor:
         logger.info(f"Successfully processed:      {processed_count}")
         logger.info(f"Skipped (requirements):      {skipped_files}")
         if valid_files - processed_count > 0:
-            logger.warning(f"Failed during processing:    {valid_files - processed_count}")
+            logger.warning(
+                f"Failed during processing:    {valid_files - processed_count}"
+            )
         logger.info(f"Parallel workers used:       {max_workers}")
         logger.info(f"Manifest file:               {output_dir / 'manifest.json'}")
         logger.info(f"Output directory:            {output_dir}")
@@ -367,7 +376,9 @@ class BatchProcessor:
                         }
                     )
 
-                    logger.info(f"   {elapsed:.1f}s ({images_per_second:.1f} images/sec)")
+                    logger.info(
+                        f"   {elapsed:.1f}s ({images_per_second:.1f} images/sec)"
+                    )
 
                 except Exception as e:
                     logger.error(f"   Failed: {e}")
@@ -398,7 +409,9 @@ class BatchProcessor:
             )
 
         logger.info("\nRECOMMENDATION:")
-        logger.info(f"   Use --workers {best_result['workers']} for optimal performance")
+        logger.info(
+            f"   Use --workers {best_result['workers']} for optimal performance"
+        )
         logger.info(
             f"   Expected speed: {best_result['images_per_second']:.1f} images per second"
         )
@@ -408,7 +421,9 @@ class BatchProcessor:
         logger.info(
             f"   Optimal workers: {best_result['workers']} ({best_result['workers'] / cpu_count:.1f}x cores)"
         )
-        logger.info("   Platform worker limit: 60 (applied for cross-platform compatibility)")
+        logger.info(
+            "   Platform worker limit: 60 (applied for cross-platform compatibility)"
+        )
 
         if best_result["workers"] > cpu_count:
             logger.info(

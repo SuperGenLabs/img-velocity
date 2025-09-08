@@ -6,7 +6,7 @@ import sys
 from ..utils.helpers import parse_override_params
 from ..utils.logging import get_logger
 
-logger = get_logger(__name__.split('.')[-1])
+logger = get_logger(__name__.split(".")[-1])
 
 
 class CLIParser:
@@ -71,14 +71,10 @@ Features:
         )
 
         parser.add_argument(
-            "input_dir",
-            nargs="?",
-            help="Input directory containing images"
+            "input_dir", nargs="?", help="Input directory containing images"
         )
         parser.add_argument(
-            "output_dir",
-            nargs="?",
-            help="Output directory for WebP variants"
+            "output_dir", nargs="?", help="Output directory for WebP variants"
         )
         parser.add_argument(
             "--thumbnails", action="store_true", help="Generate thumbnail variants"
