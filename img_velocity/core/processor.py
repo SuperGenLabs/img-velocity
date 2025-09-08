@@ -7,6 +7,7 @@ from PIL import Image, ImageFilter
 
 from ..utils.helpers import sanitize_filename
 from ..utils.logging import get_logger
+from ..utils.security import SecurityValidator
 from .config import Configuration
 
 logger = get_logger(__name__.split('.')[-1])
@@ -63,6 +64,9 @@ class ImageProcessor:
         ) = args
 
         try:
+            # Validate output path stays within output_dir
+            output_path = SecurityValidator.validate_path(output_path, output_dir)
+            
             # Ensure output directory exists
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -150,8 +154,17 @@ class ImageProcessor:
         # Create sanitized filename base
         base_filename = sanitize_filename(source_path.stem)
 
-        # Create output directory structure
+        # Create output directory structure with validation
         output_subdir = output_dir / output_config["folder"] / base_filename
+        try:
+            output_subdir = SecurityValidator.validate_path(output_subdir, output_dir)
+        except ValueError as e:
+            logger.error(f"Invalid output path for {source_path.name}: {e}")
+            return {
+                "status": "error",
+                "source": source_path.name,
+                "error": str(e)
+            }
         output_subdir.mkdir(parents=True, exist_ok=True)
 
         variants = []

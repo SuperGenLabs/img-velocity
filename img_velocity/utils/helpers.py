@@ -19,7 +19,16 @@ def format_time(seconds: float) -> str:
 
 
 def sanitize_filename(filename: str) -> str:
-    """Replace spaces and underscores with hyphens, convert to lowercase."""
+    """
+    Sanitize filename for safe filesystem operations.
+    Replace spaces and underscores with hyphens, convert to lowercase.
+    """
+    from .security import SecurityValidator
+    
+    # First apply security sanitization
+    filename = SecurityValidator.sanitize_filename(filename, allow_dots=False)
+    
+    # Then apply stylistic sanitization
     sanitized = filename.lower().replace(" ", "-").replace("_", "-")
     while "--" in sanitized:
         sanitized = sanitized.replace("--", "-")
@@ -28,6 +37,8 @@ def sanitize_filename(filename: str) -> str:
 
 def parse_override_params(override_args: list[str]) -> dict[str, any]:
     """Parse override parameters from command line arguments."""
+    from .security import SecurityValidator
+    
     overrides = {}
 
     # If no arguments provided with --override, it means accept all images
@@ -43,7 +54,12 @@ def parse_override_params(override_args: list[str]) -> dict[str, any]:
                 match = re.match(r"^(\d+):(\d+)$", value)
                 if match:
                     w, h = int(match.group(1)), int(match.group(2))
-                    overrides["aspect_ratio"] = (w, h)
+                    # Validate aspect ratio dimensions
+                    try:
+                        w, h = SecurityValidator.validate_resolution(w, h)
+                        overrides["aspect_ratio"] = (w, h)
+                    except ValueError as e:
+                        raise ValueError(f"Invalid aspect ratio: {e}")
                 else:
                     raise ValueError(
                         f"Invalid aspect ratio format: {value}. Use format like '16:9'"
@@ -56,7 +72,12 @@ def parse_override_params(override_args: list[str]) -> dict[str, any]:
                 match = re.match(r"^(\d+)x(\d+)$", clean_value)
                 if match:
                     w, h = int(match.group(1)), int(match.group(2))
-                    overrides["resolution"] = (w, h)
+                    # Validate resolution
+                    try:
+                        w, h = SecurityValidator.validate_resolution(w, h)
+                        overrides["resolution"] = (w, h)
+                    except ValueError as e:
+                        raise ValueError(f"Invalid resolution: {e}")
                 else:
                     raise ValueError(
                         f"Invalid resolution format: {clean_value}. Use format like '1920x1080'"

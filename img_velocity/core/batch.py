@@ -11,6 +11,7 @@ from pathlib import Path
 from ..utils.filesystem import FileSystemUtils
 from ..utils.logging import get_logger
 from ..utils.progress import ProgressTracker
+from ..utils.security import SecurityValidator
 from .config import Configuration
 from .validator import ImageValidator
 
@@ -63,12 +64,18 @@ class BatchProcessor:
 
         for file_path in input_dir.iterdir():
             if file_path.is_file():
-                all_image_files.append(file_path)  # Add all files to the list
-                info = self.validator.get_image_info(file_path)
-                if info and self.validator.meets_requirements_with_override(
-                    info, overrides
-                ):
-                    valid_image_infos.append(info)
+                try:
+                    # Validate each file path
+                    validated_path = SecurityValidator.validate_image_path(file_path, input_dir)
+                    all_image_files.append(validated_path)
+                    info = self.validator.get_image_info(validated_path)
+                    if info and self.validator.meets_requirements_with_override(
+                        info, overrides
+                    ):
+                        valid_image_infos.append(info)
+                except ValueError as e:
+                    logger.debug(f"Skipping invalid file {file_path}: {e}")
+                    continue
 
         return all_image_files, valid_image_infos
 
@@ -93,8 +100,23 @@ class BatchProcessor:
         overrides: dict[str, any] | None = None,
     ) -> None:
         """Process all images in input directory."""
+        # Validate input paths
+        try:
+            input_dir = SecurityValidator.validate_path(input_dir)
+            output_dir = SecurityValidator.validate_path(output_dir)
+        except ValueError as e:
+            logger.error(f"Invalid path: {e}")
+            return
+            
         if not input_dir.exists() or not input_dir.is_dir():
             logger.error(f"Invalid input directory: {input_dir}")
+            return
+            
+        # Validate worker count
+        try:
+            max_workers = SecurityValidator.validate_worker_count(max_workers)
+        except ValueError as e:
+            logger.error(f"Invalid worker count: {e}")
             return
 
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -257,6 +279,13 @@ class BatchProcessor:
         overrides: dict[str, any] | None = None,
     ) -> None:
         """Benchmark different worker counts to find optimal performance."""
+        # Validate input path
+        try:
+            input_dir = SecurityValidator.validate_path(input_dir)
+        except ValueError as e:
+            logger.error(f"Invalid input directory: {e}")
+            return
+            
         logger.info("BENCHMARKING OPTIMAL WORKER COUNT")
         logger.info("=" * 50)
 
