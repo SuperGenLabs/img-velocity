@@ -373,7 +373,7 @@ class TestEndToEndIntegration:
         # Run benchmark
         processor = BatchProcessor()
         # This should complete without errors (specific results depend on system)
-        processor.benchmark_workers(input_dir, output_dir, thumbnails=False)
+        processor.benchmark_workers(input_dir, thumbnails=False)
 
         # Benchmark should clean up after itself
         benchmark_dirs = list(output_dir.glob("benchmark_temp_*"))

@@ -81,7 +81,7 @@ class TestBatchProcessor:
 
         all_files, valid_infos = batch_processor.scan_images(no_images_dir)
 
-        assert len(all_files) == 2  # Found files, but...
+        assert len(all_files) == 0  # No image files found
         assert len(valid_infos) == 0  # None are valid images
 
     @pytest.mark.parametrize(
@@ -334,7 +334,7 @@ class TestBatchProcessor:
 
         # Run benchmark tests
         results = batch_processor._run_benchmark_tests(
-            test_workers, valid_infos, output_dir, False, None
+            test_workers, valid_infos, False, None
         )
 
         # Verify results structure
@@ -401,7 +401,7 @@ class TestBatchProcessor:
         # Verify manifest generation was called
         mock_manifest.assert_called_once_with(results, output_dir)
 
-    def test_print_benchmark_results(self, batch_processor, capsys):
+    def test_print_benchmark_results(self, batch_processor, caplog):
         """Test benchmark results printing."""
         results = [
             {"workers": 1, "time": 10.0, "images_per_second": 0.5},
@@ -409,15 +409,14 @@ class TestBatchProcessor:
             {"workers": 4, "time": 4.0, "images_per_second": 1.25},
         ]
 
-        batch_processor._print_benchmark_results(results, cpu_count=4)
+        with caplog.at_level("INFO"):
+            batch_processor._print_benchmark_results(results, cpu_count=4)
 
-        captured = capsys.readouterr()
-
-        assert "BENCHMARK RESULTS" in captured.out
-        assert "RECOMMENDATION" in captured.out
-        assert "Use --workers 4" in captured.out  # Best performer
-        assert "🥇" in captured.out  # Winner marker
-        assert "CPU cores: 4" in captured.out
+        assert "BENCHMARK RESULTS" in caplog.text
+        assert "RECOMMENDATION" in caplog.text
+        assert "Use --workers 4" in caplog.text  # Best performer
+        assert "🥇" in caplog.text  # Winner marker
+        assert "CPU cores: 4" in caplog.text
 
     def test_process_image_wrapper_function(self, input_dir, output_dir):
         """Test the standalone wrapper function for multiprocessing."""

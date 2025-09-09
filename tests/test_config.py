@@ -202,12 +202,12 @@ class TestConfiguration:
 
     def test_get_output_sizes_with_override_custom_aspect(self, config):
         """Test override with custom aspect ratio not in defaults."""
-        ratio = (21, 9)  # Ultra-wide, not in defaults
+        ratio = (7, 3)  # Unusual ratio, not in defaults
         overrides = {"aspect_ratio": ratio}
 
         result = config.get_output_sizes_with_override((16, 9), overrides)
 
-        assert result["folder"] == "custom-21-9"
+        assert result["folder"] == "custom-7-3"
         assert result["sizes"] == []
         assert result["thumbnail_sizes"] == []
 
